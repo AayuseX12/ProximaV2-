@@ -129,7 +129,7 @@ If you have any questions or suggestions for Proxima, feel free to reach out to 
 
 Check out the **owner's introduction** video where I explain more about Proxima and its features!
 
-[![Owner's Introduction Video](https://i.imgur.com/Zma55DB.jpeg)](https://www.youtube.com/watch?v=examplelink)
+[![Owner's Introduction Video](https://i.imgur.com/nG6pgO7.jpeg)](https://www.youtube.com/watch?v=examplelink)
 
 Click the image above to watch the video!
 
