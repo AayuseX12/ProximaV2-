@@ -46,14 +46,14 @@ module.exports = {
     // Check if this event is related to admin changes
     if (logMessageType === "log:thread-admins") {
       let msg = '';
-      
+
       // Handle when a user is added as an admin
       if (logMessageData.ADMIN_EVENT === "add_admin") {
-        msg = `===🎬UPDATE NOTICE🎥===\n\nUSER ADDED ${logMessageData.TARGET_ID} ADMIN AS GROUP ADMINISTRATION.`;
+        msg = `===🎬UPDATE NOTICE🎥===\n\n🚀 *New Admin Added* 🚀\n\n**User ID:** ${logMessageData.TARGET_ID} has been added as an admin to the group.`;
       } 
       // Handle when a user is removed as an admin
       else if (logMessageData.ADMIN_EVENT === "remove_admin") {
-        msg = `===🎬UPDATE NOTICE🎥===\n\nTO REMOVE ADMINISTRATIVE RIGHTS OF ${logMessageData.TARGET_ID}.`;
+        msg = `===🎬UPDATE NOTICE🎥===\n\n🚫 *Admin Rights Removed* 🚫\n\n**User ID:** ${logMessageData.TARGET_ID} has had their admin rights removed.`;
       }
 
       // Now, download the GIF and send it as a stream
@@ -62,6 +62,7 @@ module.exports = {
           responseType: 'stream',  // Make sure we get the response as a stream
         });
 
+        // Send the message with the GIF as an attachment
         api.sendMessage({
           body: msg,
           attachment: response.data, // Attach the GIF as a stream
