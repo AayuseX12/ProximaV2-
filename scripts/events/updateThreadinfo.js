@@ -19,19 +19,25 @@ module.exports = {
     },
   },
   onStart: async function ({ args, message, api, Threads, Users }) {
+    // Check if args and the expected fields are provided
+    if (!args || !args.logMessageType || !args.logMessageData) {
+      return api.sendMessage("Error: Missing event data.", message.threadID);
+    }
+
     const { author, threadID, logMessageType, logMessageData } = args;
     const { setData, getData } = Threads;
     const axios = require('axios');
     const moment = require("moment-timezone");
-    
+
     var time = moment.tz("Asia/Kathmandu").format('HH:mm:ss');
     var ngay = moment.tz("Asia/Kathmandu").format('D/MM/YYYY');
     var thu = moment.tz('Asia/Kathmandu').format('dddd');
-    
+
     // Adjust the day name
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     thu = days[moment().day()];
 
+    // Ignore if the event is coming from the thread itself
     if (author == threadID) return;
 
     try {
@@ -106,9 +112,10 @@ module.exports = {
 
       // Send the message with attachment
       api.sendMessage({ body: msg, attachment: t }, threadID);
-      
+
     } catch (e) {
       console.log(e);
+      api.sendMessage("Error: Something went wrong while processing the update.", message.threadID);
     }
   },
 };
