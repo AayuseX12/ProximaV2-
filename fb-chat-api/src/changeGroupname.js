@@ -5,6 +5,7 @@ var log = require("npmlog");
 
 module.exports = function (defaultFuncs, api, ctx) {
   return function changeGroupName(newName, threadID, callback) {
+    // Validate inputs
     if (!newName || typeof newName !== "string") {
       throw new Error("Please provide a valid new group name as the first argument.");
     }
@@ -21,6 +22,7 @@ module.exports = function (defaultFuncs, api, ctx) {
       rejectFunc = reject;
     });
 
+    // Set the callback function if not provided
     if (!callback) {
       callback = function (err) {
         if (err) return rejectFunc(err);
@@ -34,21 +36,30 @@ module.exports = function (defaultFuncs, api, ctx) {
       thread_fbid: threadID,
     };
 
-    // Make the request to update the group name
+    // Make the API request to update the group name
     defaultFuncs
       .post("https://www.facebook.com/messaging/set_thread_name/", ctx.jar, form)
-      .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
+      .then(utils.parseAndCheckLogin(ctx, defaultFuncs)) // Check login status
       .then(function (resData) {
+        // Check if the response contains an error
         if (resData.error) {
-          log.error("changeGroupName", resData.error);
+          log.error("changeGroupName", `Error from API: ${resData.error}`);
           return callback(resData.error);
         }
 
-        log.info("changeGroupName", "Group name updated successfully.");
+        // Successful response
+        log.info("changeGroupName", `Group name updated successfully to "${newName}".`);
         return callback();
       })
       .catch(function (err) {
-        log.error("changeGroupName", err);
+        // Log error details for debugging
+        log.error("changeGroupName", `Error during API request: ${err.message}`);
+        
+        // Handle specific error types
+        if (err.response) {
+          log.error("changeGroupName", `Response Error: ${err.response}`);
+        }
+
         return callback(err);
       });
 
