@@ -23,7 +23,7 @@ module.exports = {
       en: "{pn}",
     },
   },
-  onStart: async function ({ args, message, api, Threads, Users, event }) {
+  onStart: async function ({ args, message, api, Threads, Users, event, usersData }) {
     // Log the entire event for debugging purposes
     console.log("Event received:", event);
 
@@ -46,16 +46,25 @@ module.exports = {
     // Check if this event is related to admin changes
     if (logMessageType === "log:thread-admins") {
       let msg = '';
-
+      
       // Handle when a user is added as an admin
       if (logMessageData.ADMIN_EVENT === "add_admin") {
-  const userName = await Users.getNameUser(logMessageData.TARGET_ID);
-  msg = `===🎬 UPDATE NOTICE 🎥 ===\n\n🚀 *New Admin:* ${userName} has been added as an admin.`;
-} 
-else if (logMessageData.ADMIN_EVENT === "remove_admin") {
-  const userName = await Users.getNameUser(logMessageData.TARGET_ID);
-  msg = `===🎬 UPDATE NOTICE 🎥 ===\n\n🚫 *Admin Rights Removed:* ${userName} is no longer an admin.`;
-}
+        const id = logMessageData.TARGET_ID;
+        const userData = await usersData.get(id);
+        const name = userData.name;
+        const ment = [{ id: id, tag: name }];
+
+        msg = `===🎬 UPDATE NOTICE 🎥 ===\n\n🚀 *New Admin Added:* ${name} has been added as an admin.`;
+      } 
+      // Handle when a user is removed as an admin
+      else if (logMessageData.ADMIN_EVENT === "remove_admin") {
+        const id = logMessageData.TARGET_ID;
+        const userData = await usersData.get(id);
+        const name = userData.name;
+        const ment = [{ id: id, tag: name }];
+
+        msg = `===🎬 UPDATE NOTICE 🎥 ===\n\n🚫 *Admin Rights Removed:* ${name} is no longer an admin.`;
+      }
 
       // Now, download the GIF and send it as a stream
       try {
@@ -63,7 +72,6 @@ else if (logMessageData.ADMIN_EVENT === "remove_admin") {
           responseType: 'stream',  // Make sure we get the response as a stream
         });
 
-        // Send the message with the GIF as an attachment
         api.sendMessage({
           body: msg,
           attachment: response.data, // Attach the GIF as a stream
