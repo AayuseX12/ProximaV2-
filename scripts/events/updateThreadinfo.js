@@ -1,6 +1,7 @@
 const axios = require('axios'); // For making HTTP requests (to fetch data from external sources)
 const fs = require('fs-extra'); // For working with the filesystem
 const path = require('path'); // For handling and transforming file paths
+const stream = require('stream'); // To handle streams
 
 module.exports = {
   config: {
@@ -49,27 +50,26 @@ module.exports = {
       // Handle when a user is added as an admin
       if (logMessageData.ADMIN_EVENT === "add_admin") {
         msg = `===🎬UPDATE NOTICE🎥===\n\nUSER ADDED ${logMessageData.TARGET_ID} ADMIN AS GROUP ADMINISTRATION.`;
-        
-        // Use the provided Imgur GIF URL
-        const imgUrl = 'https://i.imgur.com/iZg3KrH.gif';
-        
-        api.sendMessage({
-          body: msg,
-          attachment: imgUrl  // Send the Imgur GIF URL as attachment
-        }, threadID);
-        
       } 
       // Handle when a user is removed as an admin
       else if (logMessageData.ADMIN_EVENT === "remove_admin") {
         msg = `===🎬UPDATE NOTICE🎥===\n\nTO REMOVE ADMINISTRATIVE RIGHTS OF ${logMessageData.TARGET_ID}.`;
-        
-        // Use the provided Imgur GIF URL
-        const imgUrl = 'https://i.imgur.com/iZg3KrH.gif';
-        
+      }
+
+      // Now, download the GIF and send it as a stream
+      try {
+        const response = await axios.get('https://i.imgur.com/iZg3KrH.gif', {
+          responseType: 'stream',  // Make sure we get the response as a stream
+        });
+
         api.sendMessage({
           body: msg,
-          attachment: imgUrl  // Send the Imgur GIF URL as attachment
+          attachment: response.data, // Attach the GIF as a stream
         }, threadID);
+
+      } catch (error) {
+        console.error("Error fetching the GIF:", error);
+        api.sendMessage("An error occurred while fetching the GIF.", threadID);
       }
     }
   }
