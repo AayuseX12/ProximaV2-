@@ -18,20 +18,26 @@ module.exports = {
       en: "{pn}",
     },
   },
-  onStart: async function ({ args, message, api, Threads, Users }) {
-    // Log the incoming event data for debugging
-    console.log("Event args:", args);
-    
-    const { author, threadID, logMessageType, logMessageData } = args || {};
-    
-    // If threadID is not available, skip processing
+  onStart: async function ({ args, message, api, Threads, Users, event }) {
+    // Log the entire event for debugging purposes
+    console.log("Event received:", event);
+
+    // Check if event is undefined or missing important data
+    if (!event || !event.logMessageData) {
+      console.error("No logMessageData provided or event is undefined.");
+      return;
+    }
+
+    const { author, threadID, logMessageType, logMessageData } = event;
+
+    // If logMessageData is missing, return early
     if (!logMessageData) {
-      console.error("No logMessageData provided.");
+      console.error("logMessageData is missing in the event.");
       return;
     }
 
     console.log("logMessageData:", logMessageData);
-    
+
     // Check if this event is related to admin changes
     if (logMessageType === "log:thread-admins") {
       let msg = '';
