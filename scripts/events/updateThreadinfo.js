@@ -1,13 +1,13 @@
-const axios = require('axios'); // For making HTTP requests (to fetch data from external sources)
-const fs = require('fs-extra'); // For working with the filesystem
-const path = require('path'); // For handling and transforming file paths
-const stream = require('stream'); // To handle streams
+const axios = require('axios');
+const fs = require('fs-extra');
+const path = require('path');
+const stream = require('stream');
 
 module.exports = {
   config: {
     name: "adminUpdate",
     version: "1.0.0",
-    author: "Your Name",
+    author: "Aayusha Shrestha",
     countDown: 5,
     role: "admin",
     shortDescription: {
@@ -24,57 +24,45 @@ module.exports = {
     },
   },
   onStart: async function ({ args, message, api, Threads, Users, event, usersData }) {
-    // Log the entire event for debugging purposes
-    console.log("Event received:", event);
-
-    // Check if event is undefined or missing important data
     if (!event || !event.logMessageData) {
-      console.error("No logMessageData provided or event is undefined.");
       return;
     }
 
     const { author, threadID, logMessageType, logMessageData } = event;
 
-    // If logMessageData is missing, return early
     if (!logMessageData) {
-      console.error("logMessageData is missing in the event.");
       return;
     }
 
-    console.log("logMessageData:", logMessageData);
-
-    // Check if this event is related to admin changes
     if (logMessageType === "log:thread-admins") {
       let msg = '';
       
-      // Handle when a user is added as an admin
       if (logMessageData.ADMIN_EVENT === "add_admin") {
         const id = logMessageData.TARGET_ID;
         const userData = await usersData.get(id);
         const name = userData.name;
-        const ment = [{ id: id, tag: name }];
 
-        msg = `===🎬 UPDATE NOTICE 🎥 ===\n\n🚀 *New Admin Added:* ${name} has been added as an admin.`;
+        msg = `===🎬 UPDATE NOTICE 🎥 ===
+🚀 *New Admin Added:*
+ ✅*${name} has been added as an admin.*`;
       } 
-      // Handle when a user is removed as an admin
       else if (logMessageData.ADMIN_EVENT === "remove_admin") {
         const id = logMessageData.TARGET_ID;
         const userData = await usersData.get(id);
         const name = userData.name;
-        const ment = [{ id: id, tag: name }];
 
-        msg = `===🎬 UPDATE NOTICE 🎥 ===\n\n🚫 *Admin Rights Removed:* ${name} is no longer an admin.`;
+        msg = `===🎬 UPDATE NOTICE 🎥 ===
+🚫 *Admin Rights Removed:* ${name} is no longer an admin.`;
       }
 
-      // Now, download the GIF and send it as a stream
       try {
         const response = await axios.get('https://i.imgur.com/iZg3KrH.gif', {
-          responseType: 'stream',  // Make sure we get the response as a stream
+          responseType: 'stream',
         });
 
         api.sendMessage({
           body: msg,
-          attachment: response.data, // Attach the GIF as a stream
+          attachment: response.data,
         }, threadID);
 
       } catch (error) {
