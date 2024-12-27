@@ -1,4 +1,6 @@
-const axios = require('axios');  // Add this line to import axios
+const axios = require('axios'); // For making HTTP requests (to fetch data from external sources)
+const fs = require('fs-extra'); // For working with the filesystem
+const path = require('path'); // For handling and transforming file paths
 
 module.exports = {
   config: {
@@ -6,7 +8,7 @@ module.exports = {
     version: "1.0.0",
     author: "Your Name",
     countDown: 5,
-    role: "admin", 
+    role: "admin",
     shortDescription: {
       vi: "Thông báo cập nhật nhóm",
       en: "Group update notification",
@@ -48,15 +50,12 @@ module.exports = {
       if (logMessageData.ADMIN_EVENT === "add_admin") {
         msg = `===🎬UPDATE NOTICE🎥===\n\nUSER ADDED ${logMessageData.TARGET_ID} ADMIN AS GROUP ADMINISTRATION.`;
         
-        // Send the video and gif
-        const res = (await axios.get('https://vnhhoang206-16.vnhoang06.repl.co/api/gif/gifchill')).data.data;
-        const t = (await axios.get(`${res}`, {
-                    responseType: "stream"
-                }))
-                .data;
+        // Use the provided Imgur GIF URL
+        const imgUrl = 'https://i.imgur.com/iZg3KrH.gif';
+        
         api.sendMessage({
           body: msg,
-          attachment: t
+          attachment: imgUrl  // Send the Imgur GIF URL as attachment
         }, threadID);
         
       } 
@@ -64,15 +63,12 @@ module.exports = {
       else if (logMessageData.ADMIN_EVENT === "remove_admin") {
         msg = `===🎬UPDATE NOTICE🎥===\n\nTO REMOVE ADMINISTRATIVE RIGHTS OF ${logMessageData.TARGET_ID}.`;
         
-        // Send the video and gif
-        const res = (await axios.get('https://vnhhoang206-16.vnhoang06.repl.co/api/gif/gifchill')).data.data;
-        const t = (await axios.get(`${res}`, {
-                    responseType: "stream"
-                }))
-                .data;
+        // Use the provided Imgur GIF URL
+        const imgUrl = 'https://i.imgur.com/iZg3KrH.gif';
+        
         api.sendMessage({
           body: msg,
-          attachment: t
+          attachment: imgUrl  // Send the Imgur GIF URL as attachment
         }, threadID);
       }
     }
