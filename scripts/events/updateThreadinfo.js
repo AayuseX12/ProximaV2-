@@ -19,9 +19,9 @@ module.exports = {
     },
   },
   onStart: async function ({ args, message, api, Threads, Users }) {
-    // Check if args and the expected fields are provided
-    if (!args || !args.logMessageType || !args.logMessageData) {
-      return api.sendMessage("Error: Missing event data.", message.threadID);
+    // Check if args, threadID, and logMessageData are provided
+    if (!args || !args.logMessageType || !args.logMessageData || !args.threadID) {
+      return api.sendMessage("Error: Missing event data or threadID.", message.threadID);
     }
 
     const { author, threadID, logMessageType, logMessageData } = args;
@@ -39,6 +39,9 @@ module.exports = {
 
     // Ignore if the event is coming from the thread itself
     if (author == threadID) return;
+
+    // Log the threadID for debugging
+    console.log("threadID:", threadID);
 
     try {
       let dataThread = (await getData(threadID)).threadInfo;
