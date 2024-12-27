@@ -1,3 +1,5 @@
+const axios = require('axios');  // Add this line to import axios
+
 module.exports = {
   config: {
     name: "adminUpdate",
