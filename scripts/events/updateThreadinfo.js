@@ -7,7 +7,7 @@ module.exports = {
   config: {
     name: "adminUpdate",
     version: "1.0.0",
-    author: "Aayusha Shrestha",
+    author: "Aayusha Miss",
     countDown: 5,
     role: "admin",
     shortDescription: {
@@ -28,7 +28,7 @@ module.exports = {
       return;
     }
 
-    const { author, threadID, logMessageType, logMessageData } = event;
+    const { threadID, logMessageType, logMessageData } = event;
 
     if (!logMessageData) {
       return;
@@ -36,7 +36,7 @@ module.exports = {
 
     if (logMessageType === "log:thread-admins") {
       let msg = '';
-      
+
       if (logMessageData.ADMIN_EVENT === "add_admin") {
         const id = logMessageData.TARGET_ID;
         const userData = await usersData.get(id);
@@ -44,7 +44,7 @@ module.exports = {
 
         msg = `===🎬 UPDATE NOTICE 🎥 ===
 🚀 *New Admin Added:*
- ✅*${name} has been added as an admin.*`;
+ ✅ *${name} has been added as an admin.*`;
       } 
       else if (logMessageData.ADMIN_EVENT === "remove_admin") {
         const id = logMessageData.TARGET_ID;
@@ -55,8 +55,18 @@ module.exports = {
 🚫 *Admin Rights Removed:* ${name} is no longer an admin.`;
       }
 
+      const gifLinks = [
+        'https://i.imgur.com/Uqi6bc4.gif',
+        'https://i.imgur.com/g0ejQG2.gif',
+        'https://i.imgur.com/VmWyhV7.gif',
+        'https://i.imgur.com/SzMeWtW.gif',
+        'https://i.imgur.com/L8mJYjZ.gif'
+      ];
+
+      const randomGif = gifLinks[Math.floor(Math.random() * gifLinks.length)];
+
       try {
-        const response = await axios.get('https://i.imgur.com/iZg3KrH.gif', {
+        const response = await axios.get(randomGif, {
           responseType: 'stream',
         });
 
