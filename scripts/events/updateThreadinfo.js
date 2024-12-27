@@ -49,12 +49,11 @@ module.exports = {
 
       // Handle when a user is added as an admin
       if (logMessageData.ADMIN_EVENT === "add_admin") {
-        msg = `===🎬UPDATE NOTICE🎥===\n\n🚀 *New Admin Added* 🚀\n\n**User ID:** ${logMessageData.TARGET_ID} has been added as an admin to the group.`;
-      } 
-      // Handle when a user is removed as an admin
-      else if (logMessageData.ADMIN_EVENT === "remove_admin") {
-        msg = `===🎬UPDATE NOTICE🎥===\n\n🚫 *Admin Rights Removed* 🚫\n\n**User ID:** ${logMessageData.TARGET_ID} has had their admin rights removed.`;
-      }
+  msg = `===🎬 UPDATE NOTICE 🎥 ===\n\n🚀 *New Admin:* ${logMessageData.TARGET_ID} has been added as an admin.`;
+} 
+else if (logMessageData.ADMIN_EVENT === "remove_admin") {
+  msg = `===🎬 UPDATE NOTICE 🎥 ===\n\n🚫 *Admin Rights Removed:* ${logMessageData.TARGET_ID} is no longer an admin.`;
+}
 
       // Now, download the GIF and send it as a stream
       try {
