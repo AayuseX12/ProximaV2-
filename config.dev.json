@@ -1,137 +1,142 @@
-[
-    {
-        "key": "dbln",
-        "value": "%7B%22100059338983236%22%3A%22RBhwysw9%22%2C%22100006371357043%22%3A%22C3DCEnnE%22%2C%22100001464507574%22%3A%22jJasJHpO%22%2C%22100079853320546%22%3A%22HZzZXeFV%22%2C%22100094170206961%22%3A%22szwptsmq%22%2C%22100000829183891%22%3A%22DVDBvt6u%22%2C%2261552072737061%22%3A%22fx79gq2p%22%2C%2261560948638289%22%3A%22Rv0Wbqxx%22%2C%22100094177797920%22%3A%228uMNEA0K%22%2C%22100001284814782%22%3A%22RumNhRWb%22%2C%2261560932019079%22%3A%228QBciwzE%22%2C%22100027292430597%22%3A%22vcFs1osy%22%2C%2261568805236209%22%3A%22U3iwBvXB%22%2C%2261559028073771%22%3A%22GLhoSfEd%22%2C%22100048250521014%22%3A%228SrKoW7Y%22%2C%2261570045161993%22%3A%22XgneOOJN%22%2C%2261569595540099%22%3A%22i2RL1l0W%22%2C%2261559259363985%22%3A%22FjUp5xtA%22%2C%2261559761422083%22%3A%22pjXw81i3%22%2C%22100000225125617%22%3A%22pD9Txlht%22%7D",
-        "domain": "facebook.com",
-        "path": "/login/device-based/",
-        "hostOnly": false,
-        "creation": "2024-12-27T14:45:04.620Z",
-        "lastAccessed": "2024-12-27T14:45:04.621Z"
+{
+  "facebookAccount": {
+    "email": "",
+    "password": "",
+    "2FASecret": "",
+    "i_user": "",
+    "proxy": null,
+    "userAgent": "Mozilla/5.0 (Linux; Android 12; M2102J20SG) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Mobile Safari/537.36",
+    "intervalGetNewCookie": 1440,
+    "notes": "time the system automatically retrieves new cookies from email/password, unit is minute, if you set null, the system will not automatically retrieve new cookies, it saves you from having to manually change your cookie every time it expires. recommended set to 1440 (1day) or 4320 (3day).TO BE ABLE TO USE THIS FEATURE YOU NEED TO ENTER THE ACCOUNT PASSWORD ABOVE"
+  },
+  "antiInbox": false,
+  "language": "en",
+  "notesLanguage": "change to your language with ISO 639-1 code, available languages: vi (Vietnamese), en (English)",
+  "adminOnly": {
+    "enable": false,
+    "ignoreCommand": []
+  },
+  "adminBot": [
+    "100089741361051",
+    "61552696929392"
+  ],
+  "whiteListMode": {
+    "enable": false,
+    "whiteListIds": [],
+    "notes": "if you enable this feature, only the ids in the whiteListIds section can use the bot"
+  },
+  "nickNameBot": "Proxima🐭",
+  "prefix": "#",
+  "database": {
+    "type": "sqlite",
+    "uriMongodb": "",
+    "autoSyncWhenStart": false,
+    "autoRefreshThreadInfoFirstTime": true,
+    "notes": "(1) type selects 'json' or 'sqlite' or 'mongodb'. If you choose mongodb, enter uri connect mongodb in the uriMongodb section, instructions to get uri connect mongodb at: https://youtu.be/z1f9urHW5xY. I recommend using 'mongodb' or 'sqlite', json is not recommended because it is not stable. (2) when you set autoSyncWhenStart to true, the bot will automatically synchronize the data in the database when starting the bot, this will make the bot start slower. (3) when you set autoRefreshThreadInfoFirstTime to true, the bot will automatically refresh the thread information when get first message from the thread since starting the bot"
+  },
+  "timeZone": "Asia/Dhaka",
+  "credentials": {
+    "gmailAccount": {
+      "email": "romeobot555@gmail.com",
+      "clientId": "695328982889-v1t85ej9aq1fvv0n4alp7rcbea9gkgvf.apps.googleusercontent.com",
+      "clientSecret": "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",
+      "refreshToken": "1//04EyH1gbNUVv5CgYIARAAGAQSNwF-L9IrqcPCQD2QsuhCQ2XprHCTMrTnVPI6WvT9i73nnoi4XqfAD0_yDoGW_gtWUdIeVtANzao",
+      "apiKey": ""
     },
-    {
-        "key": "datr",
-        "value": "zOFCZ6-i9-BZVbh-j_sfgG4Y",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2024-12-27T14:45:04.621Z",
-        "lastAccessed": "2024-12-27T14:45:04.621Z"
-    },
-    {
-        "key": "sb",
-        "value": "1OFCZ6AJSat3nggIOaqC4Lmn",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2024-12-27T14:45:04.621Z",
-        "lastAccessed": "2024-12-27T14:45:04.621Z"
-    },
-    {
-        "key": "ps_l",
-        "value": "1",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2024-12-27T14:45:04.621Z",
-        "lastAccessed": "2024-12-27T14:45:04.621Z"
-    },
-    {
-        "key": "ps_n",
-        "value": "1",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2024-12-27T14:45:04.621Z",
-        "lastAccessed": "2024-12-27T14:45:04.621Z"
-    },
-    {
-        "key": "vpd",
-        "value": "v1%3B755x400x1.8000000715255737",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2024-12-27T14:45:04.621Z",
-        "lastAccessed": "2024-12-27T14:45:04.621Z"
-    },
-    {
-        "key": "dpr",
-        "value": "1.9790045022964478",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2024-12-27T14:45:04.621Z",
-        "lastAccessed": "2024-12-27T14:45:04.621Z"
-    },
-    {
-        "key": "locale",
-        "value": "en_US",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2024-12-27T14:45:04.621Z",
-        "lastAccessed": "2024-12-27T14:45:04.621Z"
-    },
-    {
-        "key": "m_pixel_ratio",
-        "value": "1.8000000715255737",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2024-12-27T14:45:04.621Z",
-        "lastAccessed": "2024-12-27T14:45:04.621Z"
-    },
-    {
-        "key": "c_user",
-        "value": "61565412307337",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2024-12-27T14:45:04.621Z",
-        "lastAccessed": "2024-12-27T14:45:04.621Z"
-    },
-    {
-        "key": "fr",
-        "value": "1fq7BAewuUpvwy9Vy.AWVu_cuOt5d-BFR5JPAvIhBK0FY.BnZECV..AAA.0.0.Bnbr1k.AWXO9Tw89aM",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2024-12-27T14:45:04.621Z",
-        "lastAccessed": "2024-12-27T14:45:04.621Z"
-    },
-    {
-        "key": "xs",
-        "value": "41%3A31IEQXoCybelIQ%3A2%3A1735310694%3A-1%3A2528",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2024-12-27T14:45:04.621Z",
-        "lastAccessed": "2024-12-27T14:45:04.621Z"
-    },
-    {
-        "key": "wd",
-        "value": "400x755",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2024-12-27T14:45:04.621Z",
-        "lastAccessed": "2024-12-27T14:45:04.621Z"
-    },
-    {
-        "key": "fbl_st",
-        "value": "101332232%3BT%3A28921845",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2024-12-27T14:45:04.621Z",
-        "lastAccessed": "2024-12-27T14:45:04.621Z"
-    },
-    {
-        "key": "wl_cbv",
-        "value": "v2%3Bclient_version%3A2701%3Btimestamp%3A1735310700",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2024-12-27T14:45:04.621Z",
-        "lastAccessed": "2024-12-27T14:45:04.621Z"
+    "gRecaptcha": {
+      "siteKey": "6Lff7Y0mAAAAALiv3IBkCCOfCdEsN-lK-jtR5FCm",
+      "secretKey": "6Lff7Y0mAAAAAGQr8dO3lqDJVhTi8Q-tpLLy2kGo"
     }
-] 
+  },
+  "dashBoard": {
+    "enable": true,
+    "expireVerifyCode": 300000,
+    "port": 3001
+  },
+  "serverUptime": {
+    "enable": false,
+    "port": 3001,
+    "socket": {
+      "enable": true,
+      "channelName": "uptime",
+      "verifyToken": ""
+    }
+  },
+  "autoRestart": {
+    "time": null,
+    "notes": "you can set time is interval with milisecond or cron time, example: 1000, 10000, 60000, 3600000, 86400000, 0 0 * * *,... docs: https://www.npmjs.com/package/node-cron. If you set time is 0 or false or null, the bot will not auto restart"
+  },
+  "autoUptime": {
+    "enable": false,
+    "timeInterval": 180,
+    "url": "",
+    "notes": "the value of timeInterval is seconds, url is the url you want to send the request to (automatically detected for hosting glitch or replit)"
+  },
+  "autoLoadScripts": {
+    "enable": false,
+    "ignoreCmds": "",
+    "ignoreEvents": "",
+    "notes": "this feature will automatically load the script when scripts have been changed, you can set ignoreCmds to ignore commands, ignoreEvents to ignore events, separate by comma or space, example: \"cmd1.js cmd2.js cmd3.js\" (without backslash)"
+  },
+  "autoRefreshFbstate": true,
+  "autoReloginWhenChangeAccount": false,
+  "autoRestartWhenListenMqttError": false,
+  "restartListenMqtt": {
+    "enable": true,
+    "timeRestart": 3600000,
+    "delayAfterStopListening": 2000,
+    "logNoti": true,
+    "notes": "the value of timeRestart and delayAfterStopListening is milisecond, You shouldn't edit this if you don't know what it is"
+  },
+  "notiWhenListenMqttError": {
+    "notes": "This is the message when the bot is listening to the mqtt server and the mqtt server stops working due to account problems such as: locked acc, blocked due to spam,... bot will automatically send notifications to parts of your settings. You must change enable to true to use this feature. See bot/login/handlerWhenListenHasError.js file for details on how it works",
+    "gmail": {
+      "enable": false,
+      "emailGetNoti": "",
+      "note": "Bot will use gmailAccount to send email to emailGetNoti, can send notifications to many email, separate by comma or space, example: \"example1@gmail.com example2@gmail.com\" (without backslash)"
+    },
+    "telegram": {
+      "enable": false,
+      "botToken": "",
+      "chatId": "",
+      "note": "Can send notifications to many chatId, separate by comma or space, example: \"123456789 987654321\" (without backslash)"
+    },
+    "discordHook": {
+      "enable": false,
+      "webhookUrl": "",
+      "note": "Can send notifications to many webhookUrl, separate by comma or space, example: \"https://discord.com/api/webhooks/123456789/123456789 https://discord.com/api/webhooks/987654321/987654321\" (without backslash)"
+    }
+  },
+  "hideNotiMessage": {
+    "commandNotFound": false,
+    "adminOnly": false,
+    "threadBanned": false,
+    "userBanned": false,
+    "needRoleToUseCmd": false,
+    "needRoleToUseCmdOnReply": false,
+    "needRoleToUseCmdOnReaction": false
+  },
+  "logEvents": {
+    "disableAll": false,
+    "message": true,
+    "message_reaction": true,
+    "message_unsend": true,
+    "message_reply": true,
+    "event": true,
+    "read_receipt": false,
+    "typ": false,
+    "presence": false
+  },
+  "optionsFca": {
+    "forceLogin": true,
+    "listenEvents": true,
+    "updatePresence": true,
+    "listenTyping": true,
+    "logLevel": "error",
+    "selfListen": false,
+    "selfListenEvent": true,
+    "autoMarkDelivery": false,
+    "autoReconnect": false,
+    "notes": "Document here: https://github.com/ntkhang03/fb-chat-api/blob/master/DOCS.md#apisetoptionsoptions "
+  }
+}
