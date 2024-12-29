@@ -3,7 +3,7 @@ const path = require("path");
 
 module.exports = {
   config: {
-    name: "warning",
+    name: "Proxima",
     version: "1.0",
     author: "Aayusha",
     countDown: 5,
@@ -23,12 +23,12 @@ module.exports = {
   },
 
   onChat: async function ({ event, message, api, usersData }) {
-    // Check if the message contains prohibited words
     if (event.body && (event.body.toLowerCase().includes("randi") || event.body.toLowerCase().includes("kami"))) {
       try {
         const senderID = event.senderID;
+        const threadID = event.threadID;
 
-        // Read current warnings from the JSON file
+        // Read current warnings for this group from the JSON file
         let warnings = {};
         try {
           warnings = JSON.parse(fs.readFileSync(this.warningFilePath, "utf-8"));
@@ -36,30 +36,35 @@ module.exports = {
           console.error("Error reading warning file:", error);
         }
 
-        // If user has no warnings yet, initialize them
-        if (!warnings[senderID]) {
-          warnings[senderID] = 0;
+        // If the group doesn't have any warnings yet, initialize it
+        if (!warnings[threadID]) {
+          warnings[threadID] = {};
         }
 
-        warnings[senderID]++;
+        // If the user has no warnings yet, initialize them
+        if (!warnings[threadID][senderID]) {
+          warnings[threadID][senderID] = 0;
+        }
+
+        warnings[threadID][senderID]++;
 
         // Save updated warnings to the file automatically
         fs.writeFileSync(this.warningFilePath, JSON.stringify(warnings), "utf-8");
 
         // Handle warning system
-        if (warnings[senderID] === 1) {
-          api.sendMessage(`${event.senderID}, this is your first warning! Please refrain from using prohibited words.`, event.threadID);
+        if (warnings[threadID][senderID] === 1) {
+          api.sendMessage(`${event.senderID}, this is your first warning! Please refrain from using prohibited words.`, threadID);
         }
-        else if (warnings[senderID] === 2) {
-          api.sendMessage(`${event.senderID}, this is your second warning! One more and you will be kicked from the group.`, event.threadID);
+        else if (warnings[threadID][senderID] === 2) {
+          api.sendMessage(`${event.senderID}, this is your second warning! One more and you will be kicked from the group.`, threadID);
         }
-        else if (warnings[senderID] >= 3) {
-          api.removeUserFromGroup(senderID, event.threadID, (err) => {
+        else if (warnings[threadID][senderID] >= 3) {
+          api.removeUserFromGroup(senderID, threadID, (err) => {
             if (err) {
               console.error("Error removing user:", err);
             } else {
               console.log(`User with ID ${senderID} has been removed from the group after 3 warnings.`);
-              api.sendMessage(`${event.senderID} has been removed from the group after 3 warnings.`, event.threadID);
+              api.sendMessage(`${event.senderID} has been removed from the group after 3 warnings.`, threadID);
             }
           });
         }
