@@ -4,7 +4,7 @@ const path = require('path');
 
 module.exports = {
   config: {
-    name: 'art2',
+    name: 'aniverse',
     version: '1.5',
     author: 'Mr Stoic',
     countDown: 10,
@@ -32,7 +32,7 @@ module.exports = {
     } else if (args[0]?.match(/(https?:\/\/.*\.(?:png|jpg|jpeg))/g)) {
       imageUrl = args[0];
     } else {
-      return api.sendMessage({ body: "âŒ | Reply to an image." }, event.threadID);
+      return api.sendMessage({ body: "⏱️| Reply to an image." }, event.threadID);
     }
 
     message.reply("⏱️| Transforming your image...", async (err, info) => {
