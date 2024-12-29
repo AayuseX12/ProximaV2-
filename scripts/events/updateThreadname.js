@@ -30,22 +30,21 @@ module.exports = {
       return;
     }
 
-    // Check for group name change event
+    // Check if the event type is log:thread-name (group name change)
     if (logMessageType === "log:thread-name") {
       let msg = '';
 
-      // Check if the logMessageData contains the name change event
+      // Check if the NAME_EVENT indicates a change (group name change)
       if (logMessageData.NAME_EVENT === "change") {
-        const oldName = logMessageData.OLD_NAME;
         const newName = logMessageData.NEW_NAME;
         const userID = logMessageData.TARGET_ID;
 
-        // Get the user who changed the group name
+        // Get user information (the one who changed the group name)
         const userData = await usersData.get(userID);
-        const userName = userData.name || "Unknown";
+        const userName = userData ? userData.name : "Unknown";
 
-        // Construct the notification message
-        msg = `${userName} changed the group name from "${oldName}" to "${newName}".`;
+        // Prepare the message to notify the group
+        msg = `${userName} named the group as "${newName}".`;
 
         // Send the notification message to the group
         api.sendMessage(msg, threadID);
