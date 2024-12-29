@@ -3,7 +3,7 @@ const path = require("path");
 
 module.exports = {
   config: {
-    name: "warning",
+    name: "Proxima",
     version: "1.0",
     author: "Aayusha",
     countDown: 5,
@@ -51,20 +51,24 @@ module.exports = {
         // Save updated warnings to the file automatically
         fs.writeFileSync(this.warningFilePath, JSON.stringify(warnings), "utf-8");
 
+        // Retrieve user's name from usersData
+        const userData = await usersData.get(senderID);
+        const userName = userData ? userData.name : "Unknown";
+
         // Handle warning system
         if (warnings[threadID][senderID] === 1) {
-          api.sendMessage(`${event.senderID}, this is your first warning! Please refrain from using prohibited words.`, threadID);
+          api.sendMessage(`${userName}, this is your first warning! Please refrain from using prohibited words.`, threadID);
         }
         else if (warnings[threadID][senderID] === 2) {
-          api.sendMessage(`${event.senderID}, this is your second warning! One more and you will be kicked from the group.`, threadID);
+          api.sendMessage(`${userName}, this is your second warning! One more and you will be kicked from the group.`, threadID);
         }
         else if (warnings[threadID][senderID] >= 3) {
           api.removeUserFromGroup(senderID, threadID, (err) => {
             if (err) {
               console.error("Error removing user:", err);
             } else {
-              console.log(`User with ID ${senderID} has been removed from the group after 3 warnings.`);
-              api.sendMessage(`${event.senderID} has been removed from the group after 3 warnings.`, threadID);
+              console.log(`User ${userName} (ID: ${senderID}) has been removed from the group after 3 warnings.`);
+              api.sendMessage(`${userName} has been removed from the group after 3 warnings.`, threadID);
             }
           });
         }
