@@ -3,7 +3,7 @@ const path = require("path");
 
 module.exports = {
   config: {
-    name: "Proxima",
+    name: "warning",
     version: "1.0",
     author: "Aayusha",
     countDown: 5,
