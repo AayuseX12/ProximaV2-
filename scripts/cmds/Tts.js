@@ -1,39 +1,57 @@
-const fs = require("fs");
-const path = require("path");
-const gTTS = require("gtts-promise");
+const axios = require('axios');
+const fs = require('fs-extra');
 
 module.exports = {
   config: {
-    name: "tts",
+    name: "say",
     version: "1.0",
     author: "Aayusha",
-    category: "utilities",
-    description: "Convert text to speech and send as audio",
+    countDown: 5,
+    role: 0
   },
 
-  onStart: async ({ message, args }) => {
-    const text = args.join(" ");
-    if (!text) return message.reply("Please provide the text you want to convert to speech.");
+  onStart: async function ({ args, message }) {
+    const textToSay = args.join(" ");
 
-    // Define the output file path
-    const filePath = path.join(__dirname, "tts.mp3");
+    if (!textToSay) {
+      return message.reply("Chalauna aaudaina tmlai?");
+    }
+
+    const filename = './cache/speech.mp3';  
+
+    await fs.ensureDir('./cache');
 
     try {
-      // Generate TTS audio
-      const tts = new gTTS(text, "en"); // Default language is English
-      await tts.save(filePath);
-
-      // Send the audio file
-      message.send({
-        body: "Here is your speech:",
-        attachment: fs.createReadStream(filePath),
+      const response = await axios.get('https://api.voicerss.org/', {
+        params: {
+          key: '5489c686fcd34ab8a98862881cc326d0',
+          src: textToSay,
+          hl: 'en-us',
+          v: 'Lucia',          
+          c: 'mp3',
+          f: '44khz_16bit_stereo',
+          r: '-2',
+          b: '16',
+        },
+        responseType: 'arraybuffer',
       });
 
-      // Cleanup: Delete the file after sending
-      fs.unlinkSync(filePath);
+      await fs.writeFile(filename, response.data, 'binary');
+
+      message.reply({
+        body: "Timle Vaneko Vaney!!",
+        attachment: fs.createReadStream(filename),
+      });
+
+      fs.remove(filename)
+        .then(() => {
+          console.log('Speech file removed after sending.');
+        })
+        .catch((err) => console.error('Error removing the file:', err));
+
     } catch (error) {
-      console.error("Error generating TTS:", error);
-      message.reply("Sorry, I couldn't generate the audio.");
+      console.error('Error during TTS API call:', error);
+      message.reply("Sorry, there was an error generating the speech.");
     }
-  },
+  }
 };
