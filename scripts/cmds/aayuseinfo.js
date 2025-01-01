@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const axios = require('axios');
-const stream = require('stream');
+const path = require('path');
 
 module.exports = {
   config: {
@@ -28,10 +28,11 @@ module.exports = {
 
     if (event.body && triggers.some(trigger => event.body.toLowerCase().includes(trigger))) {
       try {
-        api.setMessageReaction("💌", event.messageID, () => {}, true);
+        api.setMessageReaction("👑", event.messageID, () => {}, true);
 
         let responseText = "";
-        const videoUrl = "https://i.imgur.com/7LqQc2d.mp4"; // Replace with your actual Imgur video link
+        const videoUrl = "https://i.imgur.com/7LqQc2d.mp4"; // Corrected Imgur video link
+        const tempFilePath = path.join(__dirname, 'temp_video.mp4'); // Temp file path for storing video
 
         if (event.body.toLowerCase().includes("who is aayusha")) {
           responseText = "She is Princess🤍👑";
@@ -41,22 +42,33 @@ module.exports = {
           responseText = "I am Proxima, a bot developed by Aayusha. I was created to assist in chats, provide fun and useful features. 🤖";
         }
 
+        // Download the video from Imgur and save it to a temporary file
         const response = await axios({
           method: 'get',
           url: videoUrl,
           responseType: 'stream',
         });
 
-        const passthrough = new stream.PassThrough();
-        response.data.pipe(passthrough);
+        const writer = fs.createWriteStream(tempFilePath);
+        response.data.pipe(writer);
 
-        return message.reply({
-          body: responseText,
-          attachment: passthrough,
+        writer.on('finish', () => {
+          // Send the video once it's successfully saved
+          message.reply({
+            body: responseText,
+            attachment: fs.createReadStream(tempFilePath),
+          });
+
+          // Optionally, delete the temp video after sending
+          fs.remove(tempFilePath).catch(err => console.error('Error deleting temp file:', err));
+        });
+
+        writer.on('error', (err) => {
+          console.error('Error saving video:', err);
         });
       } catch (error) {
         console.error("Error setting reaction or sending reply:", error);
       }
     }
   }
-}
+};
