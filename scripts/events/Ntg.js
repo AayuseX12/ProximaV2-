@@ -44,7 +44,7 @@ module.exports = {
           writer.on('finish', () => {
             // Send the message and video attachment
             message.send({
-              body: "Hi, I Am Proxima. Developed By Miss Aayussha🛜🤍",
+              body: "Hi, I Am Proxima🤍🌸",
               attachment: fs.createReadStream(videoPath),
             });
           });
