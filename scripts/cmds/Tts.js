@@ -27,7 +27,7 @@ module.exports = {
           key: '5489c686fcd34ab8a98862881cc326d0',
           src: textToSay,
           hl: 'en-us',
-          v: 'Lucia',          
+          v: 'Jack',          
           c: 'mp3',
           f: '44khz_16bit_stereo',
           r: '-2',
