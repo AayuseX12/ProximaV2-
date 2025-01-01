@@ -24,44 +24,31 @@ module.exports = {
         {
           keywords: ["proxima timro puti", "proxima timro pussy", "proxima puti dekhauna"],
           responseText: "Lau Mero Putie🥵",
-          attachmentPath: 'main/545975.small.jpg'  // Direct path from the root project folder
+          attachmentURL: 'https://i.postimg.cc/FRmg8Phr/545975-small.jpg'  // Updated Postimg URL
         },
         {
           keywords: ["fya parana", "fya parana puti", "fyaa parana puti", "fya banauna pussy"],
           responseText: "Huss fyaa banako 🥵🤧",
-          attachmentPath: 'main/1000000025.jpg'  // Direct path from the root project folder
+          attachmentURL: 'https://i.postimg.cc/Xvrg9ZQW/1000000025.web'  // Updated Postimg URL
         },
         {
           keywords: ["aajhei fya parana", "ajhei fya banauna"],
           responseText: "Huss🥵 Polyo Pussy💦",
-          attachmentPath: 'main/IMG_20241119_152521.jpg'  // Direct path from the root project folder
+          attachmentURL: 'https://i.postimg.cc/8PykxsBx/IMG-20241119-152521.jpg'  // Provided Postimg URL
         }
       ];
 
       // Iterate through each response set and check if any keywords match
-      for (const { keywords, responseText, attachmentPath } of responses) {
+      for (const { keywords, responseText, attachmentURL } of responses) {
         if (keywords.some(keyword => event.body.toLowerCase().includes(keyword))) {
           try {
             // Set reaction to the message
             api.setMessageReaction("🥵", event.messageID, () => {}, true);
 
-            // Check if the specified file exists
-            if (!fs.existsSync(attachmentPath)) {
-              console.error("File does not exist at:", attachmentPath);
-              return message.reply("File not found.");
-            }
-
-            // Confirm file readability
-            const fileStream = fs.createReadStream(attachmentPath);
-            fileStream.on('error', (error) => {
-              console.error("Error reading the file stream:", error);
-              return message.reply("Error reading file.");
-            });
-
             // Send reply with specific response and attachment
             return message.reply({
               body: responseText,
-              attachment: fileStream
+              attachment: attachmentURL  // Direct URL to image hosted on Postimg
             });
 
           } catch (error) {
