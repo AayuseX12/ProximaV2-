@@ -22,7 +22,7 @@ module.exports = {
         await api.changeNickname(newNickname, threadID, api.getCurrentUserID());
 
         // Define video URL and file path
-        const videoUrl = 'https://i.imgur.com/JyyfDrC.mp4'; // Example Imgur URL
+        const videoUrl = 'https://i.imgur.com/fPITeGV.mp4'; // Example Imgur URL
         const videoPath = './cache/joinmp4/Aayusha.mp4'; // Path where video will be saved
 
         // Ensure the directory exists
