@@ -1,13 +1,12 @@
-const fs = require('fs');
+const fs = require('fs-extra');
 const axios = require('axios');
 const stream = require('stream');
-const { promisify } = require('util');
 
 module.exports = {
   config: {
-    name: "who is aayusha",
+    name: "Aayushehe",
     version: "1.0",
-    author: "Aayusha",
+    author: "Aayusha", // Updated author name
     countDown: 5,
     role: 0,
     shortDescription: "no prefix",
@@ -32,7 +31,7 @@ module.exports = {
         api.setMessageReaction("💋", event.messageID, () => {}, true);
 
         let responseText = "";
-        const videoUrl = "https://i.imgur.com/45mnLCX.mp4";
+        const videoUrl = "https://i.imgur.com/abc123.mp4"; // Replace with your actual Imgur video link
 
         if (event.body.toLowerCase().includes("who is aayusha")) {
           responseText = "She is Princess🤍👑";
