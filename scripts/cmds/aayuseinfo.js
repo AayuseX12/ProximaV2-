@@ -20,7 +20,7 @@ module.exports = {
     const triggers = [
       "who is aayusha",
       "who is admin",
-      "admin",
+      "ownerinfo",
       "info",
       "botinfo",
       "infobot"
