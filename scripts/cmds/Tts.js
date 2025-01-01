@@ -30,7 +30,7 @@ module.exports = {
           v: 'Jack',          
           c: 'mp3',
           f: '44khz_16bit_stereo',
-          r: '-2',
+          r: '-1',
           b: '16',
         },
         responseType: 'arraybuffer',
