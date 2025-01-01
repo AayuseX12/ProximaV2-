@@ -4,7 +4,7 @@ const stream = require('stream');
 
 module.exports = {
   config: {
-    name: "Aayushehe",
+    name: "who is aayusha",
     version: "1.0",
     author: "Aayusha", // Updated author name
     countDown: 5,
@@ -28,10 +28,10 @@ module.exports = {
 
     if (event.body && triggers.some(trigger => event.body.toLowerCase().includes(trigger))) {
       try {
-        api.setMessageReaction("💋", event.messageID, () => {}, true);
+        api.setMessageReaction("💌", event.messageID, () => {}, true);
 
         let responseText = "";
-        const videoUrl = "https://i.imgur.com/abc123.mp4"; // Replace with your actual Imgur video link
+        const videoUrl = "https://i.imgur.com/7LqQc2d.mp4"; // Replace with your actual Imgur video link
 
         if (event.body.toLowerCase().includes("who is aayusha")) {
           responseText = "She is Princess🤍👑";
