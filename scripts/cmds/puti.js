@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('path');
+const axios = require('axios');
+const tmp = require('tmp'); // For temporary file storage
 
 module.exports = {
   config: {
@@ -19,22 +21,22 @@ module.exports = {
 
   onChat: async function({ event, message, getLang, api }) {
     if (event.body) {
-      // Define different keyword sets and their corresponding responses and attachments
+      // Define different keyword sets and their corresponding responses and attachment URLs
       const responses = [
         {
           keywords: ["proxima timro puti", "proxima timro pussy", "proxima puti dekhauna"],
           responseText: "Lau Mero Putie🥵",
-          attachmentURL: 'https://i.postimg.cc/FRmg8Phr/545975-small.jpg'  // Updated Postimg URL
+          attachmentURL: 'https://i.postimg.cc/FRmg8Phr/545975-small.jpg'  // Postimg URL
         },
         {
           keywords: ["fya parana", "fya parana puti", "fyaa parana puti", "fya banauna pussy"],
           responseText: "Huss fyaa banako 🥵🤧",
-          attachmentURL: 'https://i.postimg.cc/Xvrg9ZQW/1000000025.web'  // Updated Postimg URL
+          attachmentURL: 'https://i.postimg.cc/Xvrg9ZQW/1000000025.web'  // Postimg URL
         },
         {
           keywords: ["aajhei fya parana", "ajhei fya banauna"],
           responseText: "Huss🥵 Polyo Pussy💦",
-          attachmentURL: 'https://i.postimg.cc/8PykxsBx/IMG-20241119-152521.jpg'  // Provided Postimg URL
+          attachmentURL: 'https://i.postimg.cc/8PykxsBx/IMG-20241119-152521.jpg'  // Postimg URL
         }
       ];
 
@@ -45,10 +47,26 @@ module.exports = {
             // Set reaction to the message
             api.setMessageReaction("🥵", event.messageID, () => {}, true);
 
-            // Send reply with specific response and attachment
-            return message.reply({
-              body: responseText,
-              attachment: attachmentURL  // Direct URL to image hosted on Postimg
+            // Download the image from the URL
+            const response = await axios({
+              method: 'get',
+              url: attachmentURL,
+              responseType: 'stream'
+            });
+
+            // Create a temporary file to store the image
+            const tempFile = tmp.fileSync({ postfix: '.jpg' });
+
+            // Pipe the downloaded image to the temporary file
+            response.data.pipe(fs.createWriteStream(tempFile.name));
+
+            // Wait for the image to be fully written
+            response.data.on('end', () => {
+              // Send the response with the downloaded image
+              message.reply({
+                body: responseText,
+                attachment: fs.createReadStream(tempFile.name)  // Send the image file
+              });
             });
 
           } catch (error) {
