@@ -24,18 +24,17 @@ module.exports = {
         {
           keywords: ["proxima timro puti", "proxima timro pussy", "proxima puti dekhauna"],
           responseText: "Lau Mero Putie🥵",
-          attachmentPath: path.join(__dirname, '545975.small.jpg')
+          attachmentPath: path.resolve(__dirname, '545975.small.jpg')
         },
         {
           keywords: ["fya parana", "fya parana puti", "fyaa parana puti", "fya banauna pussy"],
           responseText: "Huss fyaa banako 🥵🤧",
-          attachmentPath: path.join(__dirname, '1000000025.jpg')
+          attachmentPath: path.resolve(__dirname, '1000000025.jpg')
         },
-        // Additional keyword sets can go here
         {
           keywords: ["aajhei fya parana", "ajhei fya banauna"],
           responseText: "Huss🥵 Polyo Pussy💦",
-          attachmentPath: path.join(__dirname, 'IMG_20241119_152521.jpg')
+          attachmentPath: path.resolve(__dirname, 'IMG_20241119_152521.jpg')
         }
       ];
 
@@ -64,7 +63,7 @@ module.exports = {
               body: responseText,
               attachment: fileStream
             });
-            
+
           } catch (error) {
             console.error("Error in onChat function:", error);
             return message.reply("Sorry, an error occurred while processing your request.");
