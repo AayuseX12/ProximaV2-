@@ -1,6 +1,5 @@
 const axios = require("axios");
 const fs = require("fs-extra");
-const path = require("path");
 
 module.exports = {
   config: {
@@ -21,17 +20,21 @@ module.exports = {
       try {
         api.setMessageReaction("🤍", event.messageID, () => {}, true);
 
-        const fileUrl = "https://we.tl/t-v0SqYQl70D"; // Replace with your actual link
-        const filePath = path.join(__dirname, "temp_audio.mp3"); // Temporary path for audio file
+        const fileUrl = "https://www.mediafire.com/file/yy6x3nfovmhlxes/Darlu.mp3/file"; // MediaFire link
+
+        // Create a temporary file name (e.g., temp_audio.mp3)
+        const tempAudioFile = "temp_audio.mp3";
 
         // Download the audio file
+        console.log("Attempting to download the audio file...");
+
         const response = await axios({
           method: "get",
           url: fileUrl,
           responseType: "stream",
         });
 
-        const writer = fs.createWriteStream(filePath);
+        const writer = fs.createWriteStream(tempAudioFile);
         response.data.pipe(writer);
 
         // Wait for the download to complete
@@ -40,18 +43,28 @@ module.exports = {
           writer.on("error", reject);
         });
 
-        // Send the downloaded audio as an attachment
-        await message.reply({
-          attachment: fs.createReadStream(filePath),
-        });
+        console.log("File downloaded successfully!");
 
-        // Wait 1 second before sending the text message
-        setTimeout(() => {
-          message.reply("Good Morning 🤍🌸");
-        }, 1000);
+        // Ensure the file exists before sending
+        if (fs.existsSync(tempAudioFile)) {
+          // Send the downloaded audio as an attachment
+          console.log("Sending the audio file...");
+          await message.reply({
+            attachment: fs.createReadStream(tempAudioFile),
+          });
 
-        // Clean up the temporary file
-        await fs.remove(filePath);
+          // Wait 1 second before sending the text message
+          setTimeout(() => {
+            message.reply("Good Morning 🤍🌸");
+          }, 1000);
+
+          // Clean up the temporary file
+          await fs.remove(tempAudioFile);
+          console.log("Temporary file removed.");
+        } else {
+          console.error("File not found after download.");
+          return message.reply("Failed to download the audio file.");
+        }
 
       } catch (error) {
         console.error("Error handling the audio file:", error);
