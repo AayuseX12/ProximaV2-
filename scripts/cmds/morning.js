@@ -1,5 +1,8 @@
+const fs = require("fs");
 const axios = require("axios");
-const fs = require("fs-extra");
+const stream = require("stream");
+const { promisify } = require("util");
+const pipeline = promisify(stream.pipeline);
 
 module.exports = {
   config: {
@@ -16,59 +19,40 @@ module.exports = {
   onStart: async function () {},
 
   onChat: async function ({ event, message, api }) {
-    if (event.body && event.body.toLowerCase().includes("goodmorning")) {
+    const triggers = ["goodmorning", "morning", "gm", "good morning"];
+
+    if (event.body && triggers.some(trigger => event.body.toLowerCase().includes(trigger))) {
       try {
         api.setMessageReaction("🤍", event.messageID, () => {}, true);
 
-        const fileUrl = "https://www.mediafire.com/file/yy6x3nfovmhlxes/Darlu.mp3/file"; // MediaFire link
+        message.reply("Good Morning 🤍🌸");
 
-        // Create a temporary file name (e.g., temp_audio.mp3)
-        const tempAudioFile = "temp_audio.mp3";
+        setTimeout(async () => {
+          try {
+            const audioLink = "https://drive.google.com/uc?export=download&id=1-5KVMiLhx7dZhEwfGyQNJiVKc7eyI2OU";
 
-        // Download the audio file
-        console.log("Attempting to download the audio file...");
+            const response = await axios({
+              url: audioLink,
+              method: "GET",
+              responseType: "stream",
+            });
 
-        const response = await axios({
-          method: "get",
-          url: fileUrl,
-          responseType: "stream",
-        });
+            const filePath = "/tmp/audio.mp3";
 
-        const writer = fs.createWriteStream(tempAudioFile);
-        response.data.pipe(writer);
+            await pipeline(response.data, fs.createWriteStream(filePath));
 
-        // Wait for the download to complete
-        await new Promise((resolve, reject) => {
-          writer.on("finish", resolve);
-          writer.on("error", reject);
-        });
+            await message.reply({
+              attachment: fs.createReadStream(filePath),
+            });
 
-        console.log("File downloaded successfully!");
-
-        // Ensure the file exists before sending
-        if (fs.existsSync(tempAudioFile)) {
-          // Send the downloaded audio as an attachment
-          console.log("Sending the audio file...");
-          await message.reply({
-            attachment: fs.createReadStream(tempAudioFile),
-          });
-
-          // Wait 1 second before sending the text message
-          setTimeout(() => {
-            message.reply("Good Morning 🤍🌸");
-          }, 1000);
-
-          // Clean up the temporary file
-          await fs.remove(tempAudioFile);
-          console.log("Temporary file removed.");
-        } else {
-          console.error("File not found after download.");
-          return message.reply("Failed to download the audio file.");
-        }
-
+            fs.unlinkSync(filePath);
+          } catch (audioError) {
+            console.error("Error sending the audio file:", audioError);
+            message.reply("(Audio could not be sent)");
+          }
+        }, 50);
       } catch (error) {
-        console.error("Error handling the audio file:", error);
-        return message.reply("Something went wrong while sending the audio.");
+        console.error("Error handling the trigger:", error);
       }
     }
   },
