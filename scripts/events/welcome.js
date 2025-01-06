@@ -92,7 +92,7 @@ module.exports = {
                     form.body = defaultWelcomeMessage;
 
                     // Fetch the GIF from the URL
-                    const gifUrl = 'https://i.imgur.com/88gxPJC.gif';  // Example GIF link
+                    const gifUrl = 'https://i.imgur.com/TenINd2.gif';  // Example GIF link
                     const gifPath = path.join(__dirname, 'welcome.gif');
 
                     try {
