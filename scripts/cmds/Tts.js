@@ -1,6 +1,5 @@
-
 const axios = require('axios');
-const fs = require('fs');
+const fs = require('fs-extra');
 
 module.exports = {
   config: {
@@ -12,63 +11,43 @@ module.exports = {
   },
 
   onStart: async function ({ args, message }) {
-    const textToSay = args.join(" ");  // Join all the arguments to create the full text.
+    const textToSay = args.join(" ");
 
     if (!textToSay) {
-      return message.reply("Chalauna aaudaina tmlai?");
+      return message.reply("Please provide text to convert into speech.");
     }
 
+    const filename = './cache/speech.mp3';  
+
+    await fs.ensureDir('./cache');
+
     try {
-      // Make the API call to iFlytek for text-to-speech.
-      const response = await axios.post('https://api.xfyun.cn/v1/service/v1/tts', {
-        // Headers with the necessary API credentials
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Appid': 'ga5924ec',  // Your APPID
-          'X-Api-Key': 'f9301380e42293334e56b09dc905fd94',  // Your APIKey
+      const response = await axios.get('https://api.voicerss.org/', {
+        params: {
+          key: '5489c686fcd34ab8a98862881cc326d0',
+          src: textToSay,
+          hl: 'en-us',
+          v: 'Anna',          
+          c: 'mp3',
+          f: '44khz_16bit_stereo',
+          r: '-2',
+          b: '16',
         },
-        data: {
-          // Parameters for TTS, adjust according to the documentation
-          text: textToSay,  // The text you want to convert to speech
-          voice_name: 'xiaoyan',  // A common voice name, change if needed
-          speed: 50,  // Speed of speech (optional)
-          volume: 50,  // Volume level (optional)
-          pitch: 50,  // Pitch level (optional)
-        }
+        responseType: 'arraybuffer',
       });
 
-      if (response.data.code === 0) {
-        const speechUrl = response.data.data.url;  // URL of the synthesized speech.
+      await fs.writeFile(filename, response.data, 'binary');
 
-        // Check if the cache directory exists, create it if not
-        const cacheDir = './cache';
-        if (!fs.existsSync(cacheDir)) {
-          fs.mkdirSync(cacheDir, { recursive: true });
-        }
+      message.reply({
+        body: "Here is your cute speech:",
+        attachment: fs.createReadStream(filename),
+      });
 
-        const filePath = './cache/speech.mp3';
-        const writer = fs.createWriteStream(filePath);
-
-        // Download the speech file and save it locally
-        const speechResponse = await axios.get(speechUrl, { responseType: 'stream' });
-        speechResponse.data.pipe(writer);
-
-        writer.on('finish', () => {
-          console.log('File saved to', filePath);
-          message.reply({
-            body: "Timle Vaneko Vaney!!",
-            attachment: filePath  // Attach the local file
-          });
-        });
-
-        writer.on('error', (error) => {
-          console.error('Error saving the file:', error);
-          message.reply("Sorry, there was an error saving the speech file.");
-        });
-
-      } else {
-        message.reply("Sorry, there was an error generating the speech.");
-      }
+      fs.remove(filename)
+        .then(() => {
+          console.log('Speech file removed after sending.');
+        })
+        .catch((err) => console.error('Error removing the file:', err));
 
     } catch (error) {
       console.error('Error during TTS API call:', error);
