@@ -119,7 +119,7 @@ __________________________
 » Don't Spam Command⚔️
 » Be Friendly With Bot🔰
 » 10/4 Hrs Active/Day🛠️
-• Bot Have 415 Comands📇
+• Bot Have 109 Comands📇
 • Do Help|Pages To See All
   
 				`);
