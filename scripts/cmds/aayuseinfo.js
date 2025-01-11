@@ -21,7 +21,7 @@ module.exports = {
       "who is aayusha",
       "who is admin",
       "ownerinfo",
-      "info",
+      "infoaayusha",
       "botinfo",
       "infobot"
     ];
@@ -38,7 +38,7 @@ module.exports = {
           responseText = "She is Princess🤍👑";
         } else if (event.body.toLowerCase().includes("who is admin") || event.body.toLowerCase().includes("admin")) {
           responseText = "The admin is Aayusha, the one who created me and manages all my tasks! 😊";
-        } else if (event.body.toLowerCase().includes("info") || event.body.toLowerCase().includes("botinfo") || event.body.toLowerCase().includes("infobot")) {
+        } else if (event.body.toLowerCase().includes("infoaayusha") || event.body.toLowerCase().includes("botinfo") || event.body.toLowerCase().includes("infobot")) {
           responseText = "I am Proxima, a bot developed by Aayusha. I was created to assist in chats, provide fun and useful features. 🤖";
         }
 
