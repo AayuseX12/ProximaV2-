@@ -56,12 +56,16 @@ module.exports = {
       }
 
       const gifLinks = [
-        'https://i.imgur.com/Uqi6bc4.gif',
-        'https://i.imgur.com/g0ejQG2.gif',
-        'https://i.imgur.com/VmWyhV7.gif',
-        'https://i.imgur.com/SzMeWtW.gif',
-        'https://i.imgur.com/L8mJYjZ.gif'
-      ];
+  'https://drive.google.com/uc?export=download&id=11s3HFeAesnyDFgvp_Ptz6leqyUND7lEe',
+  'https://drive.google.com/uc?export=download&id=11xPbYHSsuT6YDSPOl3tzoD8C1yPzvdz3',
+  'https://drive.google.com/uc?export=download&id=11Z93iJd7wi7pwU4T-obZf3PoBY1JqYFZ',
+  'https://drive.google.com/uc?export=download&id=11lDqn1BsfdVsAPyelp5A8pSMjSeTeBir',
+  'https://drive.google.com/uc?export=download&id=11VN0cWfqELpH9KbCpR4akF302P0aMesU',
+  'https://drive.google.com/uc?export=download&id=11tuhu4erVZdyLX6GBQ__LBnRh4bt8Cux',
+  'https://drive.google.com/uc?export=download&id=11vRIOCdaXAvx0cO22Mwiz9lhtC20cL-L',
+  'https://drive.google.com/uc?export=download&id=11wvXpaaVCVJMp_ZkPzFk8p6Hdk2dzfl4',
+  'https://drive.google.com/uc?export=download&id=11cTn6yeiwv5iFd6EYyLksTWlRKcIknJx',
+];
 
       const randomGif = gifLinks[Math.floor(Math.random() * gifLinks.length)];
 
