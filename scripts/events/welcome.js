@@ -31,26 +31,21 @@ module.exports = {
             return async function () {
                 const hours = getTime("HH");
                 const { threadID } = event;
-                const prefix = global.utils.getPrefix(threadID);
                 const dataAddedParticipants = event.logMessageData.addedParticipants;
 
-                // If the new member is the bot itself
                 if (dataAddedParticipants.some((item) => item.userFbId == api.getCurrentUserID())) {
                     return;
                 }
 
-                // If new member:
                 if (!global.temp.welcomeEvent[threadID])
                     global.temp.welcomeEvent[threadID] = {
                         joinTimeout: null,
                         dataAddedParticipants: []
                     };
 
-                // Push new members to array
                 global.temp.welcomeEvent[threadID].dataAddedParticipants.push(...dataAddedParticipants);
                 clearTimeout(global.temp.welcomeEvent[threadID].joinTimeout);
 
-                // Set new timeout for welcome message
                 global.temp.welcomeEvent[threadID].joinTimeout = setTimeout(async function () {
                     const threadData = await threadsData.get(threadID);
                     if (threadData.settings.sendWelcomeMessage == false) return;
@@ -61,7 +56,6 @@ module.exports = {
                     const mentions = [];
                     let multiple = false;
 
-                    // Handle multiple members joining
                     if (dataAddedParticipants.length > 1) multiple = true;
 
                     for (const user of dataAddedParticipants) {
@@ -72,10 +66,8 @@ module.exports = {
                         });
                     }
 
-                    // If no new members to greet, return
                     if (userName.length == 0) return;
 
-                    // Get default welcome message and session of the day
                     let { defaultWelcomeMessage = getLang("defaultWelcomeMessage") } = threadData.data;
                     const form = {
                         mentions: defaultWelcomeMessage.match(/\{userNameTag\}/g) ? mentions : null
@@ -91,8 +83,8 @@ module.exports = {
 
                     form.body = defaultWelcomeMessage;
 
-                    // Fetch the GIF from the URL
-                    const gifUrl = 'https://i.imgur.com/TenINd2.gif';  // Example GIF link
+                    // Fetch the GIF from the Google Drive link
+                    const gifUrl = 'https://drive.google.com/uc?export=download&id=12BV_HIV5wOZ-IdhUoiWdlnK-poEJWh0v';
                     const gifPath = path.join(__dirname, 'welcome.gif');
 
                     try {
@@ -115,4 +107,4 @@ module.exports = {
                 }, 1500);
             };
     }
-}
+};
