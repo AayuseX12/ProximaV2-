@@ -1,6 +1,5 @@
 const axios = require('axios');
-const fs = require('fs-extra'); // Use fs-extra for advanced file operations
-const { getTime } = global.utils;
+const fs = require('fs-extra');
 
 module.exports = {
   config: {
@@ -10,43 +9,40 @@ module.exports = {
     category: "events",
   },
 
-  onStart: async ({ threadsData, message, event, api, getLang }) => {
-    if (event.logMessageType == "log:subscribe") {
+  onStart: async ({ threadsData, message, event, api }) => {
+    if (event.logMessageType === "log:subscribe") {
       const { threadID } = event;
       const dataAddedParticipants = event.logMessageData.addedParticipants;
 
       // If the bot is added to the group
-      if (dataAddedParticipants.some((item) => item.userFbId == api.getCurrentUserID())) {
-        // Change the bot's nickname
-        const newNickname = "Aayusha's Bot"; // The desired nickname
+      if (dataAddedParticipants.some((item) => item.userFbId === api.getCurrentUserID())) {
+        const newNickname = "Aayusha's Bot";
         await api.changeNickname(newNickname, threadID, api.getCurrentUserID());
 
-        // Define video URL and file path
-        const videoUrl = 'https://i.imgur.com/fPITeGV.mp4'; // Example Imgur URL
-        const videoPath = './cache/joinmp4/Aayusha.mp4'; // Path where video will be saved
-
-        // Ensure the directory exists
-        await fs.ensureDir('./cache/joinmp4'); // Ensure directory exists
+        const videoUrl = 'https://drive.google.com/uc?export=download&id=128FuMdA9iOpRtsKTVTFHNF6w3FqJHOaJ';
+        const videoPath = './cache/joinmp4/Aayusha.mp4';
 
         try {
-          // Download the video using axios
+          await fs.ensureDir('./cache/joinmp4'); // Ensure the directory exists
+
           const response = await axios({
             url: videoUrl,
             method: 'GET',
             responseType: 'stream',
           });
 
-          // Save the video to disk
           const writer = fs.createWriteStream(videoPath);
           response.data.pipe(writer);
 
-          // Once the download is complete, send the video and message
-          writer.on('finish', () => {
-            // Send the message and video attachment
-            message.send({
-              body: "Hi, I Am Proxima🤍🌸",
-              attachment: fs.createReadStream(videoPath),
-            });
+          writer.on('finish', async () => {
+            try {
+              await message.send({
+                body: "Hi, I Am Proxima🤍🌸",
+                attachment: fs.createReadStream(videoPath),
+              });
+            } catch (error) {
+              console.error("Error sending video message: ", error);
+            }
           });
 
           writer.on('error', (error) => {
@@ -54,6 +50,7 @@ module.exports = {
           });
         } catch (error) {
           console.error("Error downloading video: ", error);
+          message.reply("Failed to download the video. Please check the link or try again.");
         }
       }
     }
