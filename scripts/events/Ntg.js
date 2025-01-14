@@ -37,7 +37,7 @@ module.exports = {
           writer.on('finish', async () => {
             try {
               await message.send({
-                body: "Hi, I Am Proxima🤍🌸. Develop by Miss Aayusha🤍",
+                body: "Hi, I Am Proxima🤍🌸. Developed by Miss Aayusha Shrestha🤍",
                 attachment: fs.createReadStream(videoPath),
               });
             } catch (error) {
