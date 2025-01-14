@@ -1,7 +1,7 @@
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-const { getTime, drive } = global.utils;
+const { getTime } = global.utils;
 
 module.exports = {
     config: {
@@ -12,23 +12,14 @@ module.exports = {
     },
 
     langs: {
-        vi: {
-            session1: "sÃ¡ng",
-            session2: "trÆ°a",
-            session3: "chiá»u",
-            session4: "tá»‘i",
-            leaveType1: "tá»± rá»i",
-            leaveType2: "bá»‹ kick",
-            defaultLeaveMessage: "{userName} Ä‘Ã£ {type} khá»i nhÃ³m"
-        },
         en: {
-            session1: "ðŒðŽð‘ððˆðð†",
-            session2: "ððŽðŽð",
-            session3: "ð€ð…ð“ð„ð‘ððŽðŽð",
-            session4: "ð„ð•ð„ððˆðð†",
+            session1: "Morning",
+            session2: "Noon",
+            session3: "Afternoon",
+            session4: "Evening",
             leaveType1: "Left!!",
-            leaveType2: "ð—žð—œð—–ð—žð—˜ð——!!ã€",
-            defaultLeaveMessage: "{userName}"
+            leaveType2: "Was Kicked!!",
+            defaultLeaveMessage: "{userName} has {type} the group."
         }
     },
 
@@ -62,16 +53,8 @@ module.exports = {
 
             form.body = leaveMessage;
 
-            if (leaveMessage.includes("{userNameTag}")) {
-                form.mentions = [{
-                    id: leftParticipantFbId,
-                    tag: userName
-                }];
-            }
-
-            // Add GIF feature here
-            const gifUrl = 'https://i.imgur.com/VbwXSLy.gif'; // Example GIF link
-            const gifPath = path.join(__dirname, 'elcome.gif');
+            const gifUrl = 'https://drive.google.com/uc?export=download&id=12Gp1H7SMHhPMgBj9l7NCojMbiFHxkycJ';
+            const gifPath = path.join(__dirname, 'leave.gif');
 
             try {
                 const response = await axios.get(gifUrl, { responseType: 'stream' });
@@ -88,7 +71,7 @@ module.exports = {
                 });
             } catch (error) {
                 console.error("Error downloading GIF: ", error);
-                message.send(form); // Send message without GIF if download fails
+                message.send(form); // Send the message without GIF if download fails
             }
         }
     }
