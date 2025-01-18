@@ -21,12 +21,13 @@ module.exports = {
         // Set reaction to the message
         api.setMessageReaction("💋", event.messageID, () => {}, true);
 
-        // Define the Imgur video link
-        const videoUrl = "https://i.imgur.com/TCuQx0p.mp4";
+        // Google Drive direct download URL
+        const googleDriveUrl =
+          "https://drive.google.com/uc?id=143WNU9koFGEcVN3PUJ0q0X2XTYnmgEZe&export=download";
 
-        // Download the video from the Imgur link
+        // Download the file from the Google Drive direct link
         const response = await axios({
-          url: videoUrl,
+          url: googleDriveUrl,
           method: "GET",
           responseType: "stream",
         });
