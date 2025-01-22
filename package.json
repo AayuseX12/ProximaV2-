@@ -1,7 +1,7 @@
 {
-  "name": "goat-bot-v2",
+  "name": "Proxima The Bot",
   "version": "1.5.35",
-  "description": "A simple Bot chat messenger using personal account. Made by NTKhang.",
+  "description": "A simple chat bot made by Aayusha Shrestha.",
   "main": "index.js",
   "engines": {
     "node": "18.x",
