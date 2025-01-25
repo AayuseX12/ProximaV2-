@@ -37,7 +37,13 @@ module.exports = {
           writer.on('finish', async () => {
             try {
               await message.send({
-                body: "Hi, I Am Proxima!!. Developed by Miss Aayusha Shrestha🤍🕊️",
+                body: "──── BOT INFO ──── ✨  
+▣ |NAME: Proxima 🤖  
+▣ |MISSION: Bringing sparkles, fun, and magic to your chats! 🌑
+
+─── CREATOR INFO ─── 🌙  
+▣ |NAME: Aayusha Shrestha 🖤  
+▣ |ROLE: The mastermind behind Proxima's brilliance! ⚡",
                 attachment: fs.createReadStream(videoPath),
               });
             } catch (error) {
