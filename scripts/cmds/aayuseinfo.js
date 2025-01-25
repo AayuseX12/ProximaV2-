@@ -30,7 +30,7 @@ module.exports = {
       try {
         api.setMessageReaction("👑", event.messageID, () => {}, true);
 
-        let responseText = "";
+        let responseText = "She is Princess🤍👑";
         const googleDriveUrl =
           "https://drive.google.com/uc?id=14BZQHcbtd2ygJ7oOpDpsh231_ODKAZzy&export=download"; // Converted Google Drive link
         const tempFilePath = path.join(__dirname, "temp_video.mp4"); // Temp file path for storing video
