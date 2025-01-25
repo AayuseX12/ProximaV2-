@@ -19,7 +19,7 @@ module.exports = {
         const newNickname = "Aayusha's Bot";
         await api.changeNickname(newNickname, threadID, api.getCurrentUserID());
 
-        const videoUrl = 'https://drive.google.com/uc?export=download&id=128FuMdA9iOpRtsKTVTFHNF6w3FqJHOaJ';
+        const videoUrl = 'https://drive.google.com/uc?export=download&id=1618ydsYoYP2eOgBadZDlbZN519ne3Ssf';
         const videoPath = './cache/joinmp4/Aayusha.mp4';
 
         try {
@@ -37,7 +37,7 @@ module.exports = {
           writer.on('finish', async () => {
             try {
               await message.send({
-                body: "Hi, I Am Proxima🤍🌸. Developed by Miss Aayusha Shrestha🤍🕊️",
+                body: "Hi, I Am Proxima!!. Developed by Miss Aayusha Shrestha🤍🕊️",
                 attachment: fs.createReadStream(videoPath),
               });
             } catch (error) {
