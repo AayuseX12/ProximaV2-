@@ -74,11 +74,11 @@ const downloadVideo = async () => {
 // Function to send the welcome message along with the video
 const sendWelcomeMessage = async (threadID, message, videoPath) => {
   const botInfoMessage = `──── BOT INFO ──── ✨  
-▣ |NAME: Proxima 🤖  
+▣ |NAME: Proxima The Bot 
 ▣ |MISSION: Bringing sparkles, fun, and magic to your chats! 🌑
 
 ─── CREATOR INFO ─── 🌙  
-▣ |NAME: Aayusha Shrestha 🖤  
+▣ |NAME: Aayusha Shrestha   
 ▣ |ROLE: The mastermind behind Proxima's brilliance! ⚡`;
 
   try {
