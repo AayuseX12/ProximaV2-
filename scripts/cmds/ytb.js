@@ -6,7 +6,7 @@ const tinyurl = require('tinyurl');
 
 module.exports = {
   config: {
-    name: "ytb",
+    name: "sing2",
     version: "1.3",
     author: "JARiF",
     countDown: 5,
@@ -16,12 +16,70 @@ module.exports = {
 
   onStart: async function ({ api, event, message }) {
     try {
-      const sendReply = async (songName) => {
-        const originalMessage = await message.reply(`Searching for "${songName}"...`);
-        const searchResults = await yts(songName);
+        if (event.type === "message_reply" && ["audio", "video"].includes(event.messageReply.attachments[0].type)) {
+            const attachmentUrl = event.messageReply.attachments[0].url;
+        const urls = await tinyurl.shorten(attachmentUrl) || args.join(' ');
+        const response = await axios.get(`https://www.api.vyturex.com/songr?url=${urls}`);
+
+        if (response.data && response.data.title) {
+          const song = response.data.title;
+          const originalMessage = await message.reply(`Searching for "${song}"...`);
+          const searchResults = await yts(song);
+
+          if (!searchResults.videos.length) {
+            return message.reply("Error: Song not found.");
+          }
+
+          const video = searchResults.videos[0];
+          const videoUrl = video.url;
+          const stream = ytdl(videoUrl, { filter: "audioonly" });
+          const fileName = `music.mp3`;
+          const filePath = `${__dirname}/tmp/${fileName}`;
+
+          stream.pipe(fs.createWriteStream(filePath));
+
+          stream.on('response', () => {
+            console.info('[DOWNLOADER]', 'Starting download now!');
+          });
+
+          stream.on('info', (info) => {
+            console.info('[DOWNLOADER]', `Downloading ${info.videoDetails.title} by ${info.videoDetails.author.name}`);
+          });
+
+          stream.on('end', async () => {
+            console.info('[DOWNLOADER] Downloaded');
+            if (fs.statSync(filePath).size > 87380608) {
+              fs.unlinkSync(filePath);
+              return message.reply('[ERR] The file could not be sent because it is larger than 83mb.');
+            }
+            const replyMessage = {
+              body: `Title: ${video.title}\nArtist: ${video.author.name}`,
+              attachment: fs.createReadStream(filePath),
+            };
+            await api.unsendMessage(originalMessage.messageID);
+            await message.reply(replyMessage, event.threadID, () => {
+              fs.unlinkSync(filePath);
+            });
+          });
+        } else {
+          return message.reply("Error: Song information not found.");
+        }
+      } else {
+        const input = event.body;
+        const text = input.substring(12);
+        const data = input.split(" ");
+
+        if (data.length < 2) {
+          return message.reply("Please put a song");
+        }
+
+        data.shift();
+        const song = data.join(" ");
+        const originalMessage = await message.reply(`Searching your song named "${song}"...`);
+        const searchResults = await yts(song);
 
         if (!searchResults.videos.length) {
-          return message.reply("Error: Song not found.");
+          return message.reply("Error: Invalid request.");
         }
 
         const video = searchResults.videos[0];
@@ -31,44 +89,34 @@ module.exports = {
         const filePath = `${__dirname}/tmp/${fileName}`;
 
         stream.pipe(fs.createWriteStream(filePath));
-        stream.on("end", async () => {
-          const fileSize = fs.statSync(filePath).size;
-          if (fileSize > 26214400) { // 25MB
-            fs.unlinkSync(filePath);
-            return message.reply('[ERR] The file is larger than 25MB and cannot be sent.');
-          }
 
+        stream.on('response', () => {
+          console.info('[DOWNLOADER]', 'Starting download now!');
+        });
+
+        stream.on('info', (info) => {
+          console.info('[DOWNLOADER]', `Downloading ${info.videoDetails.title} by ${info.videoDetails.author.name}`);
+        });
+
+        stream.on('end', async () => {
+          console.info('[DOWNLOADER] Downloaded');
+          if (fs.statSync(filePath).size > 26214400) {
+            fs.unlinkSync(filePath);
+            return message.reply('[ERR] The file could not be sent because it is larger than 25MB.');
+          }
           const replyMessage = {
             body: `Title: ${video.title}\nArtist: ${video.author.name}`,
             attachment: fs.createReadStream(filePath),
           };
-
           await api.unsendMessage(originalMessage.messageID);
           await message.reply(replyMessage, event.threadID, () => {
             fs.unlinkSync(filePath);
           });
         });
-      };
-
-      if (event.type === "message_reply" && ["audio", "video"].includes(event.messageReply.attachments[0].type)) {
-        const attachmentUrl = event.messageReply.attachments[0].url;
-        const shortenedUrl = await tinyurl.shorten(attachmentUrl);
-        const response = await axios.get(`https://www.api.vyturex.com/songr?url=${shortenedUrl}`);
-
-        if (response.data && response.data.title) {
-          await sendReply(response.data.title);
-        } else {
-          message.reply("Error: Song information not found.");
-        }
-      } else {
-        const input = event.body.substring(12).trim();
-        if (!input) return message.reply("Please provide a song name.");
-
-        await sendReply(input);
       }
     } catch (error) {
       console.error('[ERROR]', error);
-      message.reply("An error occurred. Please try again.");
+      message.reply("This song is not available.");
     }
   },
 };
