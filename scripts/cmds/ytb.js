@@ -1,76 +1,74 @@
-const ytdl = require("ytdl-core");
-const fs = require("fs");
-const path = require("path");
-const { search } = require("youtube-search-api");
+const fs = require("fs-extra");
+const ytdl = require("@neoxr/ytdl-core");
+const yts = require("yt-search");
+const axios = require('axios');
+const tinyurl = require('tinyurl');
 
 module.exports = {
   config: {
-    name: "sing",
-    version: "1.0.0",
-    author: "Aayusha",
+    name: "ytb",
+    version: "1.3",
+    author: "JARiF",
     countDown: 5,
     role: 0,
-    shortDescription: {
-      en: "Sing any song 🎵",
-    },
-    longDescription: {
-      en: "Provide the name or URL of a song, and the bot will send the audio from YouTube.",
-    },
-    category: "fun",
-    guide: {
-      en: "{pn} <song name or URL> - Sends the audio of the requested song.",
-    },
+    category: "cute",
   },
-  onStart: async function ({ args, message, api }) {
-    // Ensure a song name or URL is provided
-    if (!args[0]) {
-      return message.reply("Please provide a song name or URL!");
-    }
 
-    // Combine arguments into a search query
-    const query = args.join(" ");
-
-    // Check if the input is a YouTube URL
-    let songURL;
-    if (ytdl.validateURL(query)) {
-      songURL = query;
-    } else {
-      // Search YouTube for the song
-      const searchResults = await search(query);
-      if (!searchResults.items.length) {
-        return message.reply("No results found for your query. Please try again!");
-      }
-      songURL = `https://www.youtube.com/watch?v=${searchResults.items[0].id}`;
-    }
-
+  onStart: async function ({ api, event, message }) {
     try {
-      // Define a temporary file path
-      const filePath = path.join(__dirname, "song.mp3");
+      const sendReply = async (songName) => {
+        const originalMessage = await message.reply(`Searching for "${songName}"...`);
+        const searchResults = await yts(songName);
 
-      // Download the audio
-      const audioStream = ytdl(songURL, { filter: "audioonly" });
-      const writeStream = fs.createWriteStream(filePath);
+        if (!searchResults.videos.length) {
+          return message.reply("Error: Song not found.");
+        }
 
-      audioStream.pipe(writeStream);
+        const video = searchResults.videos[0];
+        const videoUrl = video.url;
+        const stream = ytdl(videoUrl, { filter: "audioonly" });
+        const fileName = `music.mp3`;
+        const filePath = `${__dirname}/tmp/${fileName}`;
 
-      writeStream.on("finish", async () => {
-        // Send the audio file
-        await api.sendMessage(
-          { attachment: fs.createReadStream(filePath) },
-          message.threadID
-        );
+        stream.pipe(fs.createWriteStream(filePath));
+        stream.on("end", async () => {
+          const fileSize = fs.statSync(filePath).size;
+          if (fileSize > 26214400) { // 25MB
+            fs.unlinkSync(filePath);
+            return message.reply('[ERR] The file is larger than 25MB and cannot be sent.');
+          }
 
-        // Clean up the temporary file
-        fs.unlinkSync(filePath);
-      });
+          const replyMessage = {
+            body: `Title: ${video.title}\nArtist: ${video.author.name}`,
+            attachment: fs.createReadStream(filePath),
+          };
 
-      writeStream.on("error", (err) => {
-        console.error("Error writing file:", err);
-        message.reply("An error occurred while processing your request.");
-      });
-    } catch (err) {
-      console.error("Error downloading audio:", err);
-      return message.reply("An error occurred while downloading the song. Please try again.");
+          await api.unsendMessage(originalMessage.messageID);
+          await message.reply(replyMessage, event.threadID, () => {
+            fs.unlinkSync(filePath);
+          });
+        });
+      };
+
+      if (event.type === "message_reply" && ["audio", "video"].includes(event.messageReply.attachments[0].type)) {
+        const attachmentUrl = event.messageReply.attachments[0].url;
+        const shortenedUrl = await tinyurl.shorten(attachmentUrl);
+        const response = await axios.get(`https://www.api.vyturex.com/songr?url=${shortenedUrl}`);
+
+        if (response.data && response.data.title) {
+          await sendReply(response.data.title);
+        } else {
+          message.reply("Error: Song information not found.");
+        }
+      } else {
+        const input = event.body.substring(12).trim();
+        if (!input) return message.reply("Please provide a song name.");
+
+        await sendReply(input);
+      }
+    } catch (error) {
+      console.error('[ERROR]', error);
+      message.reply("An error occurred. Please try again.");
     }
   },
 };
