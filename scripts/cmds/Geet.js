@@ -38,9 +38,8 @@ module.exports = {
       type = "audio";
     }
 
-    const processingMessage = await message.reply(
-      "✅ 𝗠𝗔 𝗧𝗜𝗠𝗥𝗢 𝗕𝗔𝗕𝗬 𝗧𝗔 𝗛𝗔𝗜𝗡𝗔 𝗧𝗘𝗜𝗡𝗘 𝗧𝗜𝗠𝗥𝗢 𝗟𝗔𝗚𝗜 𝗠𝗨𝗦𝗜𝗖 𝗖𝗛𝗔𝗜 𝗦𝗨𝗡𝗔𝗨𝗡𝗔 𝗦𝗔𝗞𝗫𝗨»😄🤍"
-    );
+    // Notify user that the process has started
+    await message.reply("✅JADAI XU YOUTUBE TIRA MUSIC KHOJNA");
 
     try {
       // Search for the song on YouTube
@@ -105,10 +104,7 @@ module.exports = {
       fs.unlinkSync(downloadPath);
     } catch (error) {
       console.error(`Failed to download and send song: ${error.message}`);
-      message.reply(`Failed to download song: ${error.message}`);
-    } finally {
-      // Delete the processing message
-      await processingMessage.delete();
+      message.reply(`❌ Failed to download song: ${error.message}`);
     }
   },
 };
