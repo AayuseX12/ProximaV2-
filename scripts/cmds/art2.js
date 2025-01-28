@@ -4,7 +4,7 @@ const path = require('path');
 
 module.exports = {
   config: {
-    name: 'aniverse',
+    name: 'art2',
     version: '1.5',
     author: 'Mr Stoic',
     countDown: 10,
@@ -27,15 +27,15 @@ module.exports = {
       if (["photo", "sticker"].includes(event.messageReply.attachments[0]?.type)) {
         imageUrl = event.messageReply.attachments[0].url;
       } else {
-        return api.sendMessage({ body: "⏱️| Reply must be an image." }, event.threadID);
+        return api.sendMessage({ body: "❌ | Reply must be an image." }, event.threadID);
       }
     } else if (args[0]?.match(/(https?:\/\/.*\.(?:png|jpg|jpeg))/g)) {
       imageUrl = args[0];
     } else {
-      return api.sendMessage({ body: "⏱️| Reply to an image." }, event.threadID);
+      return api.sendMessage({ body: "❌ | Reply to an image." }, event.threadID);
     }
 
-    message.reply("⏱️| Transforming your image...", async (err, info) => {
+    message.reply("✅ | Transforming your image...", async (err, info) => {
       if (err) {
         console.error(err);
         return;
@@ -121,7 +121,7 @@ style_preset: 'anime',
         fs.writeFileSync(imagePath, imageBuffer);
 
         await api.sendMessage({
-          body: `✅| Image Transformed\n\n`,
+          body: `✅ | Image Transformed\n\n`,
           attachment: fs.createReadStream(imagePath),
         }, event.threadID);
       } catch (error) {
