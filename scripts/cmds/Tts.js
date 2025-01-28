@@ -1,57 +1,75 @@
-const axios = require('axios');
-const fs = require('fs-extra');
+const { createReadStream, unlinkSync, createWriteStream, ensureDirSync } = require("fs-extra");
+const { resolve } = require("path");
+const axios = require("axios");
 
 module.exports = {
   config: {
     name: "say",
-    version: "1.0",
-    author: "Aayusha",
+    aliases: ["bol"],
+    version: "1.1",
+    author: "Aayusha Shrestha",
     countDown: 5,
-    role: 0
+    role: 0,
+    shortDescription: {
+      en: "text to speech with language",
+    },
+    longDescription: {
+      en: "Convert text into speech in various languages.",
+    },
+    category: "fun",
+    guide: {
+      en: "#say",
+    },
   },
 
-  onStart: async function ({ args, message }) {
-    const textToSay = args.join(" ");
-
-    if (!textToSay) {
-      return message.reply("Please provide text to convert into speech.");
-    }
-
-    const filename = './cache/speech.mp3';  
-
-    await fs.ensureDir('./cache');
-
+  onStart: async function ({ api, event, args }) {
     try {
-      const response = await axios.get('https://api.voicerss.org/', {
-        params: {
-          key: '5489c686fcd34ab8a98862881cc326d0',
-          src: textToSay,
-          hl: 'en-us',
-          v: 'Anna',          
-          c: 'mp3',
-          f: '44khz_16bit_stereo',
-          r: '-2',
-          b: '16',
+      const content = event.type === "message_reply" ? event.messageReply.body : args.join(" ");
+      const supportedLanguages = ["ru", "en", "ko", "ja", "tl", "vi", "in", "ne"];
+      const defaultLanguage = "en";
+
+      // Extract language code and text
+      const [language, ...textParts] = content.split(" ");
+      const languageToSay = supportedLanguages.includes(language) ? language : defaultLanguage;
+      const msg = supportedLanguages.includes(language) ? textParts.join(" ") : content;
+
+      if (!msg.trim()) {
+        return api.sendMessage("Please provide text to convert into speech.", event.threadID);
+      }
+
+      // Ensure the cache directory exists
+      const cacheDir = resolve(__dirname, "cache");
+      ensureDirSync(cacheDir);
+
+      const filePath = resolve(cacheDir, `${event.threadID}_${event.senderID}.mp3`);
+      const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(msg)}&tl=${languageToSay}&client=tw-ob`;
+
+      // Fetch and save TTS audio with a User-Agent header
+      const response = await axios({
+        method: "GET",
+        url,
+        responseType: "stream",
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
         },
-        responseType: 'arraybuffer',
       });
 
-      await fs.writeFile(filename, response.data, 'binary');
-
-      message.reply({
-        body: "Here is your cute speech:",
-        attachment: fs.createReadStream(filename),
+      const writer = response.data.pipe(createWriteStream(filePath));
+      await new Promise((resolve, reject) => {
+        writer.on("finish", resolve);
+        writer.on("error", reject);
       });
 
-      fs.remove(filename)
-        .then(() => {
-          console.log('Speech file removed after sending.');
-        })
-        .catch((err) => console.error('Error removing the file:', err));
-
+      // Send the audio file
+      api.sendMessage(
+        { attachment: createReadStream(filePath) },
+        event.threadID,
+        () => unlinkSync(filePath)
+      );
     } catch (error) {
-      console.error('Error during TTS API call:', error);
-      message.reply("Sorry, there was an error generating the speech.");
+      console.error("Error occurred during TTS:", error);
+      api.sendMessage("An error occurred while processing your request. Please try again later.", event.threadID);
     }
-  }
+  },
 };
