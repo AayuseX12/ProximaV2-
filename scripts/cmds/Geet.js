@@ -104,7 +104,7 @@ module.exports = {
       fs.unlinkSync(downloadPath);
     } catch (error) {
       console.error(`Failed to download and send song: ${error.message}`);
-      message.reply(`❌ Failed to download song: ${error.message}`);
+      message.reply(`⏱ You are in the waiting time to use this command, please come back after 1.0s: ${error.message}`);
     }
   },
 };
