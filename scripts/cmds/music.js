@@ -19,7 +19,7 @@ module.exports = {
   },
 
   config: {
-    name: "music",
+    name: "rmusic",
     version: "2.0",
     role: 0,
     author: "𝗞𝘀𝗵𝗶𝘁𝗶𝘇 & 𝗦𝗞𝗬",
