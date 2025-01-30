@@ -8,7 +8,7 @@ const apiKey = "priyansh-here"; // API Key for downloading
 
 module.exports = {
   config: {
-    name: "music",
+    name: "sing",
     version: "1.1.0",
     author: "Aayusha",
     countDown: 5,
