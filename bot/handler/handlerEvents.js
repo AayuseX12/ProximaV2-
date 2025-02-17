@@ -250,40 +250,31 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
 				}
 			}
 			// —————  CHECK BANNED OR ONLY ADMIN BOX  ————— //
-	if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode))
+	if(isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode))
     return;
 
 if (!command) {
     const mp4Url = "https://i.imgur.com/BjPV8Ty.mp4"; // Replace with your Imgur MP4 URL
     if (!hideNotiMessage.commandNotFound) {
         try {
-            // Fetch the MP4 data
+            // Fetch the MP4 data directly as a buffer
             const response = await axios.get(mp4Url, { responseType: 'arraybuffer' });
 
-            // Define the local file path
-            const filePath = path.join(__dirname, 'downloaded_video.mp4');
-            
-            // Ensure the directory exists (this is just an example; you can modify the path as needed)
-            await fs.ensureDir(path.dirname(filePath));
-
-            // Save the MP4 locally using fs-extra
-            await fs.writeFile(filePath, response.data);
-
-            // Send the saved MP4 as an attachment
+            // Send the MP4 directly as an attachment
             return await message.reply({
                 content: commandName ?
                     utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound", commandName, prefix) :
                     utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", prefix),
-                files: [{ attachment: filePath, name: 'commandNotFound.mp4' }]
+                files: [{ attachment: Buffer.from(response.data), name: 'commandNotFound.mp4' }]
             });
         } catch (error) {
-            console.error("Error downloading or saving the MP4:", error);
+            console.error("Error downloading the MP4:", error);
             return await message.reply("Sorry, there was an issue fetching the video.");
         }
     }
 } else {
     return true;
-}
+    }
 			// ————————————— CHECK PERMISSION ———————————— //
 			const roleConfig = getRoleConfig(utils, command, isGroup, threadData, commandName);
 			const needRole = roleConfig.onStart;
