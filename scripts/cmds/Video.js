@@ -1,13 +1,12 @@
 const fs = require("fs");
 const path = require("path");
 const ytSearch = require("yt-search");
-const axios = require("axios");
-const https = require("https");
+const { exec } = require("child_process");
 
 module.exports = {
   config: {
     name: "video",
-    version: "1.0.3",
+    version: "1.1.0",
     author: "Aayusha",
     countDown: 5,
     role: 0,
@@ -23,12 +22,12 @@ module.exports = {
     },
   },
 
-  onStart: async function ({ args, message, api }) {
+  onStart: async function ({ args, message }) {
     const videoName = args.join(" ");
     if (!videoName) return message.reply("❌ Please provide a video name or keyword!");
 
     // Notify user that the process has started
-    await message.reply("✅ WAIT JADAIXU YOUTUBE TIRA TMLE VANEKO VIDEO KHOJNA");
+    await message.reply("✅ Searching for the video on YouTube...");
 
     try {
       // Search for the video on YouTube
@@ -40,14 +39,7 @@ module.exports = {
       // Get the top result from the search
       const topResult = searchResults.videos[0];
       const videoId = topResult.videoId;
-
-      // Construct API URL for downloading the top result
-      const apiKey = "priyansh-here";
-      const apiUrl = `https://priyansh-ai.onrender.com/youtube?id=${videoId}&type=video&apikey=${apiKey}`;
-
-      // Get the direct download URL from the API
-      const downloadResponse = await axios.get(apiUrl);
-      const downloadUrl = downloadResponse.data.downloadUrl;
+      const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
       // Set the filename based on the video title
       const safeTitle = topResult.title.replace(/[^a-zA-Z0-9 \-_]/g, ""); // Clean the title
@@ -60,37 +52,27 @@ module.exports = {
         fs.mkdirSync(downloadDir, { recursive: true });
       }
 
-      // Download the video file and save locally
-      const file = fs.createWriteStream(downloadPath);
+      // Notify user about the download process
+      await message.reply(`⏳ Downloading **${topResult.title}**... Please wait!`);
 
-      await new Promise((resolve, reject) => {
-        https.get(downloadUrl, (response) => {
-          if (response.statusCode === 200) {
-            response.pipe(file);
-            file.on("finish", () => {
-              file.close(resolve);
-            });
-          } else {
-            reject(
-              new Error(`Failed to download file. Status code: ${response.statusCode}`)
-            );
-          }
-        }).on("error", (error) => {
-          fs.unlinkSync(downloadPath);
-          reject(new Error(`Error downloading file: ${error.message}`));
+      // Execute yt-dlp to download the video
+      exec(`yt-dlp -o "${downloadPath}" ${videoUrl}`, async (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error downloading video: ${error.message}`);
+          return message.reply("❌ Failed to download the video.");
+        }
+
+        // Send the downloaded video file to the user
+        await message.reply({
+          attachment: fs.createReadStream(downloadPath),
+          body: `🎥 Here is your video: **${topResult.title}**`,
         });
-      });
 
-      // Send the downloaded video file to the user
-      await message.reply({
-        attachment: fs.createReadStream(downloadPath),
-        body: `🎥 Title: ${topResult.title}:`,
+        // Cleanup the downloaded file
+        fs.unlinkSync(downloadPath);
       });
-
-      // Cleanup the downloaded file
-      fs.unlinkSync(downloadPath);
     } catch (error) {
-      console.error(`Failed to download and send video: ${error.message}`);
+      console.error(`Error: ${error.message}`);
       message.reply(`❌ Failed to download video: ${error.message}`);
     }
   },
