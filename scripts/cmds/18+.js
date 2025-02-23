@@ -5,7 +5,7 @@ module.exports = {
   config: {
     name: "18+",
     version: "1.0",
-    author: "aayusee",
+    author: "unknown",
     countDown: 5,
     role: 0,
     shortDescription: "no prefix",
