@@ -2,7 +2,7 @@ const axios = require('axios');
 
 module.exports = {
   config: {
-    name: "proxi",
+    name: "proxi1",
     aliases: ['ai', 'Ai','Gemini','AI'],
     version: 2.0,
     author: "Aayusha",
