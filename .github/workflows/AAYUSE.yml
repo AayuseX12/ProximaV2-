@@ -1,13 +1,12 @@
-
 name: Node.js CI
 
 on:
   push:
     branches:
-      - main  # Change this to your main branch if necessary
+      - main  # Change this if your main branch has a different name
   pull_request:
     branches:
-      - main  # Change this to your main branch if necessary
+      - main  # Change this if your main branch has a different name
 
 jobs:
   build:
@@ -15,12 +14,12 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3  # Updated to latest version
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
+    - name: Set up Node.js 20
+      uses: actions/setup-node@v4  # Updated to latest version
       with:
-        node-version: '18'  # Adjust if necessary
+        node-version: '20'  # Updated from 18 to 20
 
     - name: Install dependencies
       run: npm install
