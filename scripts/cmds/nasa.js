@@ -23,7 +23,7 @@ module.exports = {
         api.setMessageReaction("🙈", event.messageID, () => {}, true);
 
         // Imgur link to the video/image
-        const imgurLink = "https://i.imgur.com/example.mp4"; // Replace with your link
+        const imgurLink = "https://i.imgur.com/pjUO7Hm.mp4"; // Replace with your link
 
         // Download the video/image to a temporary location
         const filePath = path.resolve(__dirname, "temp.mp4");
