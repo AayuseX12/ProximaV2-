@@ -6,7 +6,7 @@ const { exec } = require("child_process");
 module.exports = {
   config: {
     name: "video",
-    version: "1.1.0",
+    version: "1.2.0",
     author: "Aayusha",
     countDown: 5,
     role: 0,
@@ -14,11 +14,11 @@ module.exports = {
       en: "Download YouTube video from keyword or link",
     },
     longDescription: {
-      en: "Search and download videos from YouTube based on the given keyword or link.",
+      en: "Search and download videos from YouTube using yt-dlp with cookies to bypass restrictions.",
     },
     category: "media",
     guide: {
-      en: "{pn} [videoName]\n\nThis command always downloads and sends videos.",
+      en: "{pn} [videoName]\n\nThis command downloads videos using yt-dlp.",
     },
   },
 
@@ -55,8 +55,8 @@ module.exports = {
       // Notify user about the download process
       await message.reply(`⏳ Downloading **${topResult.title}**... Please wait!`);
 
-      // Execute yt-dlp to download the video
-      exec(`yt-dlp -o "${downloadPath}" ${videoUrl}`, async (error, stdout, stderr) => {
+      // Execute yt-dlp to download the video with cookies
+      exec(`yt-dlp --no-check-certificate --geo-bypass --cookies "/path/to/your/cookies.txt" -o "${downloadPath}" ${videoUrl}`, async (error, stdout, stderr) => {
         if (error) {
           console.error(`Error downloading video: ${error.message}`);
           return message.reply("❌ Failed to download the video.");
