@@ -1,79 +1,100 @@
 const fs = require("fs");
 const path = require("path");
-const ytSearch = require("yt-search");
-const { exec } = require("child_process");
+const axios = require("axios");
+const yts = require("yt-search");
 
 module.exports = {
   config: {
-    name: "video",
-    version: "1.2.0",
-    author: "Aayusha",
+    name: "video2",
+    version: "1.0.0",
+    author: "aayuse",
     countDown: 5,
-    role: 0,
+    role: 2,
     shortDescription: {
-      en: "Download YouTube video from keyword or link",
+      en: "Download YouTube videos (under 25MB) or provide a link",
     },
     longDescription: {
-      en: "Search and download videos from YouTube using yt-dlp with cookies to bypass restrictions.",
+      en: "Search and download YouTube videos under 25MB, or provide a direct download link if the file size is too large.",
     },
-    category: "media",
+    category: "owner",
     guide: {
-      en: "{pn} [videoName]\n\nThis command downloads videos using yt-dlp.",
+      en: "{pn} <video name>",
     },
   },
 
   onStart: async function ({ args, message }) {
-    const videoName = args.join(" ");
-    if (!videoName) return message.reply("❌ Please provide a video name or keyword!");
-
-    // Notify user that the process has started
-    await message.reply("✅ Searching for the video on YouTube...");
+    if (!args[0]) {
+      return message.reply("❌ | Jis song ki video dekhni ho uska name likho..!");
+    }
 
     try {
-      // Search for the video on YouTube
-      const searchResults = await ytSearch(videoName);
-      if (!searchResults || !searchResults.videos.length) {
-        throw new Error("No results found for your search query.");
+      const query = args.join(" ");
+      await message.reply(`🔍 | "${query}" song dhondh kar send karti hun...`);
+
+      const searchResults = await yts(query);
+      const firstResult = searchResults.videos[0];
+
+      if (!firstResult) {
+        return message.reply(`❌ | "${query}" ke liye koi results nahi mile.`);
       }
 
-      // Get the top result from the search
-      const topResult = searchResults.videos[0];
-      const videoId = topResult.videoId;
-      const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+      const { title, url } = firstResult;
+      await message.reply(`⏳ | "${title}" ka download link mil raha hai...`);
 
-      // Set the filename based on the video title
-      const safeTitle = topResult.title.replace(/[^a-zA-Z0-9 \-_]/g, ""); // Clean the title
-      const filename = `${safeTitle}.mp4`;
-      const downloadDir = path.join(__dirname, "cache");
-      const downloadPath = path.join(downloadDir, filename);
+      const apiUrl = `https://mr-prince-malhotra-ytdl.vercel.app/video?url=${encodeURIComponent(url)}`;
+      const response = await axios.get(apiUrl);
+      const responseData = response.data;
 
-      // Ensure the directory exists
-      if (!fs.existsSync(downloadDir)) {
-        fs.mkdirSync(downloadDir, { recursive: true });
+      if (!responseData.result || !responseData.result.url) {
+        return message.reply(`❌ | "${title}" ke liye download link nahi mila.`);
       }
 
-      // Notify user about the download process
-      await message.reply(`⏳ Downloading **${topResult.title}**... Please wait!`);
+      const downloadUrl = responseData.result.url;
+      const filePath = path.resolve(__dirname, "cache", `${Date.now()}-${title}.mp4`);
 
-      // Execute yt-dlp to download the video with cookies
-      exec(`yt-dlp --no-check-certificate --geo-bypass --cookies "/path/to/your/cookies.txt" -o "${downloadPath}" ${videoUrl}`, async (error, stdout, stderr) => {
-        if (error) {
-          console.error(`Error downloading video: ${error.message}`);
-          return message.reply("❌ Failed to download the video.");
+      const videoResponse = await axios({
+        method: "get",
+        url: downloadUrl,
+        responseType: "stream",
+        headers: { "User-Agent": "Mozilla/5.0" },
+      });
+
+      const fileStream = fs.createWriteStream(filePath);
+      videoResponse.data.pipe(fileStream);
+
+      fileStream.on("finish", async () => {
+        const fileSizeInMB = fs.statSync(filePath).size / (1024 * 1024);
+
+        if (fileSizeInMB > 25) {
+          fs.unlinkSync(filePath);
+          return message.reply(`❌ | "${title}" ka size ${fileSizeInMB.toFixed(2)}MB hai, jo 25MB se zyada hai. 📥 Download link: ${downloadUrl}`);
         }
 
-        // Send the downloaded video file to the user
         await message.reply({
-          attachment: fs.createReadStream(downloadPath),
-          body: `🎥 Here is your video: **${topResult.title}**`,
+          body: `🎥 | Apki video "${title}" download karli gayi hai! 💞`,
+          attachment: fs.createReadStream(filePath),
         });
 
-        // Cleanup the downloaded file
-        fs.unlinkSync(downloadPath);
+        fs.unlinkSync(filePath);
       });
+
+      videoResponse.data.on("error", async (error) => {
+        console.error(error);
+        fs.unlinkSync(filePath);
+        return message.reply(`❌ | Video download karne me masla aya: ${error.message}`);
+      });
+
     } catch (error) {
-      console.error(`Error: ${error.message}`);
-      message.reply(`❌ Failed to download video: ${error.message}`);
+      console.error(error);
+
+      let errorMessage = "Koi unknown error ho gayi.";
+      if (error.response) {
+        errorMessage = error.response.data?.message || error.response.statusText || "Server se response nahi mila.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      return message.reply(`❌ | Mujhe video download karne me kuch issues arahe hain: ${errorMessage}`);
     }
   },
 };
