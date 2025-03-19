@@ -6,7 +6,7 @@ const https = require("https");
 
 module.exports = {
   config: {
-    name: "music",
+    name: "sing",
     version: "1.0.3",
     author: "Aayusha",
     countDown: 5,
