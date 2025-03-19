@@ -5,16 +5,16 @@ const yts = require("yt-search");
 
 module.exports = {
   config: {
-    name: "video2",
-    version: "1.0.0",
+    name: "video",
+    version: "1.0.4",
     author: "aayuse",
     countDown: 5,
-    role: 2,
+    role: 1,
     shortDescription: {
-      en: "Download YouTube videos (under 25MB) or provide a link",
+      en: "🎥 Download YouTube videos (under 25MB) or get a link.",
     },
     longDescription: {
-      en: "Search and download YouTube videos under 25MB, or provide a direct download link if the file size is too large.",
+      en: "Search and download YouTube videos under 25MB, or receive a direct download link if the file is too large.",
     },
     category: "owner",
     guide: {
@@ -22,31 +22,33 @@ module.exports = {
     },
   },
 
-  onStart: async function ({ args, message }) {
+  onStart: async function ({ args, message, event, api }) {
     if (!args[0]) {
-      return message.reply("❌ | Jis song ki video dekhni ho uska name likho..!");
+      return message.reply("⚠️ | Please enter the name of the video you want to download.");
     }
 
     try {
       const query = args.join(" ");
-      await message.reply(`🔍 | "${query}" song dhondh kar send karti hun...`);
+      api.setMessageReaction("🔍", event.messageID, () => {}, true);
+      await message.reply(`🎶 | Searching for: "${query}"...\n⏳ Please wait...`);
 
       const searchResults = await yts(query);
       const firstResult = searchResults.videos[0];
 
       if (!firstResult) {
-        return message.reply(`❌ | "${query}" ke liye koi results nahi mile.`);
+        return message.reply(`❌ | No results found for "${query}". Please try again with a different title.`);
       }
 
       const { title, url } = firstResult;
-      await message.reply(`⏳ | "${title}" ka download link mil raha hai...`);
+      api.setMessageReaction("⏳", event.messageID, () => {}, true);
+      await message.reply(`🎬 | Fetching video: "${title}"...\n📥 Preparing download link...`);
 
       const apiUrl = `https://mr-prince-malhotra-ytdl.vercel.app/video?url=${encodeURIComponent(url)}`;
       const response = await axios.get(apiUrl);
       const responseData = response.data;
 
       if (!responseData.result || !responseData.result.url) {
-        return message.reply(`❌ | "${title}" ke liye download link nahi mila.`);
+        return message.reply(`🚫 | Unable to retrieve a download link for "${title}".`);
       }
 
       const downloadUrl = responseData.result.url;
@@ -67,11 +69,14 @@ module.exports = {
 
         if (fileSizeInMB > 25) {
           fs.unlinkSync(filePath);
-          return message.reply(`❌ | "${title}" ka size ${fileSizeInMB.toFixed(2)}MB hai, jo 25MB se zyada hai. 📥 Download link: ${downloadUrl}`);
+          return message.reply(
+            `⚠️ | The file size of "${title}" is **${fileSizeInMB.toFixed(2)}MB**, which exceeds the 25MB limit.\n🔗 You can download it manually here: ${downloadUrl}`
+          );
         }
 
+        api.setMessageReaction("✅", event.messageID, () => {}, true);
         await message.reply({
-          body: `🎥 | Apki video "${title}" download karli gayi hai! 💞`,
+          body: `✅ | Download Complete!\n🎥 Your video: "${title}" is ready.`,
           attachment: fs.createReadStream(filePath),
         });
 
@@ -81,20 +86,20 @@ module.exports = {
       videoResponse.data.on("error", async (error) => {
         console.error(error);
         fs.unlinkSync(filePath);
-        return message.reply(`❌ | Video download karne me masla aya: ${error.message}`);
+        return message.reply(`🚨 | An error occurred while downloading: ${error.message}`);
       });
 
     } catch (error) {
       console.error(error);
+      let errorMessage = "An unknown error occurred.";
 
-      let errorMessage = "Koi unknown error ho gayi.";
       if (error.response) {
-        errorMessage = error.response.data?.message || error.response.statusText || "Server se response nahi mila.";
+        errorMessage = error.response.data?.message || error.response.statusText || "No response from the server.";
       } else if (error.message) {
         errorMessage = error.message;
       }
 
-      return message.reply(`❌ | Mujhe video download karne me kuch issues arahe hain: ${errorMessage}`);
+      return message.reply(`🚨 | Error: ${errorMessage}`);
     }
   },
 };
