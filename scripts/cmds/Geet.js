@@ -3,11 +3,12 @@ const path = require("path");
 const ytSearch = require("yt-search");
 const axios = require("axios");
 const https = require("https");
+const http = require("http");
 
 module.exports = {
   config: {
     name: "youtube",
-    version: "1.1.2",
+    version: "1.1.3",
     author: "Aayusha",
     countDown: 5,
     role: 0,
@@ -101,29 +102,46 @@ module.exports = {
       return api.sendMessage("❌ Invalid number. Reply 1-5.", threadID, messageID);
 
     const selected = Reply.results[choice - 1];
-    const type = Reply.type;
+    const apiType = Reply.type === "music" ? "audio" : "video"; // Convert "music" to "audio" for API
     const videoId = selected.videoId;
 
     await api.sendMessage(`⏬ Downloading: ${selected.title}`, threadID);
 
     try {
       const apiKey = "priyansh-here";
-      const mainURL = `https://priyansh-ai.onrender.com/youtube?id=${videoId}&type=${type}&apikey=${apiKey}`;
+      const mainURL = `https://priyansh-ai.onrender.com/youtube?id=${videoId}&type=${apiType}&apikey=${apiKey}`;
 
-      let res = await axios.get(mainURL).catch(() => null);
+      console.log(`Trying primary API URL: ${mainURL}`);
+      let res = null;
+      
+      try {
+        res = await axios.get(mainURL, { timeout: 15000 });
+      } catch (err) {
+        console.log("Primary API failed, trying fallback:", err.message);
+        res = null;
+      }
+
       if (!res?.data?.downloadUrl) {
-        const fallbackURL = `https://api.downloadfy.net/youtube?id=${videoId}&type=${type === "music" ? "mp3" : "mp4"}&apikey=${apiKey}`;
-        res = await axios.get(fallbackURL);
+        const fallbackURL = `https://api.downloadfy.net/youtube?id=${videoId}&type=${Reply.type === "music" ? "mp3" : "mp4"}&apikey=${apiKey}`;
+        console.log(`Trying fallback API URL: ${fallbackURL}`);
+        res = await axios.get(fallbackURL, { timeout: 15000 });
       }
 
       const downloadUrl = res?.data?.downloadUrl;
       if (!downloadUrl) throw new Error("Download URL not found.");
 
-      const filename = `${selected.title.replace(/[^\w\s]/gi, "").substring(0, 40)}_${Date.now()}.${type === "music" ? "mp3" : "mp4"}`;
+      console.log(`Download URL obtained: ${downloadUrl}`);
+      
+      const extension = Reply.type === "music" ? "mp3" : "mp4";
+      const filename = `${selected.title.replace(/[^\w\s]/gi, "").substring(0, 40)}_${Date.now()}.${extension}`;
       const filePath = path.join(__dirname, "cache", filename);
+      
       await downloadFile(downloadUrl, filePath);
 
       if (!fs.existsSync(filePath)) throw new Error("Download failed.");
+      if (fs.statSync(filePath).size < 10000) throw new Error("Downloaded file is too small, likely corrupted.");
+
+      console.log(`Download successful: ${filePath} (${fs.statSync(filePath).size} bytes)`);
 
       await api.sendMessage({
         body: `✅ Downloaded: ${selected.title}\n⏱️ ${selected.timestamp}\n👁️ ${selected.views.toLocaleString()}`,
@@ -134,30 +152,67 @@ module.exports = {
 
     } catch (err) {
       console.error("Download error:", err.message);
-      api.sendMessage("❌ Failed to download. Try again later.", threadID);
+      api.sendMessage(`❌ Failed to download: ${err.message}. Try again later.`, threadID);
     }
   },
 };
 
 async function downloadFile(url, filePath) {
   return new Promise((resolve, reject) => {
+    // Create directory if it doesn't exist
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    
+    // Handle both http and https URLs
+    const protocol = url.startsWith('https:') ? https : require('http');
+    
     const file = fs.createWriteStream(filePath);
-    https.get(url, (res) => {
-      if (res.statusCode === 302 && res.headers.location) {
-        return downloadFile(res.headers.location, filePath).then(resolve).catch(reject);
+    
+    const request = protocol.get(url, (res) => {
+      // Handle redirects
+      if (res.statusCode === 301 || res.statusCode === 302) {
+        if (res.headers.location) {
+          file.close();
+          fs.unlinkSync(filePath);
+          return downloadFile(res.headers.location, filePath).then(resolve).catch(reject);
+        } else {
+          return reject(new Error("Redirect with no location"));
+        }
       }
-      if (res.statusCode !== 200) return reject(new Error("Failed to download: " + res.statusCode));
+      
+      if (res.statusCode !== 200) {
+        file.close();
+        fs.unlinkSync(filePath);
+        return reject(new Error(`Failed to download: HTTP ${res.statusCode}`));
+      }
 
       res.pipe(file);
+      
       file.on("finish", () => {
         file.close(() => {
-          if (fs.existsSync(filePath) && fs.statSync(filePath).size > 0) resolve();
-          else reject(new Error("File empty"));
+          if (fs.existsSync(filePath) && fs.statSync(filePath).size > 0) {
+            resolve();
+          } else {
+            fs.unlinkSync(filePath);
+            reject(new Error("File empty or not found after download"));
+          }
         });
       });
-    }).on("error", (e) => {
-      fs.existsSync(filePath) && fs.unlinkSync(filePath);
+    });
+    
+    request.on("error", (e) => {
+      file.close();
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
       reject(e);
+    });
+    
+    request.setTimeout(60000, function() {
+      request.abort();
+      file.close();
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      reject(new Error("Download timeout"));
     });
   });
 }
