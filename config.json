@@ -1,7 +1,7 @@
 {
   "facebookAccount": {
-    "email": "pythonreport.py@gmail.com",
-    "password": "AayushaShrestha44.",
+    "email": "",
+    "password": "",
     "2FASecret": "",
     "i_user": "",
     "proxy": null,
@@ -21,14 +21,16 @@
     "61552696929392",
     "100000829183891",
     "61552072737061",
+    "61574765378290",
+    "61574631227345",
     "61574765378290"
   ],
   "whiteListMode": {
     "enable": false,
-    "whiteListIds": [61552696929392,100089741361051,61552072737061],
+    "whiteListIds": [61552696929392,100089741361051,61552072737061,61574631227345,61574765378290],
     "notes": "if you enable this feature, only the ids in the whiteListIds section can use the bot"
   },
-  "nickNameBot": "Proxima🐭",
+  "nickNameBot": "[#]•Proxima",
   "prefix": "#",
   "database": {
     "type": "sqlite",
