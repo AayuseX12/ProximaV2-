@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const chatHistoryDir = 'mistralChatHistory';
-const apiKey = 'YlNJh0Mx4LlKflRXeyjONZA0asGjhl6f';  // Your Mistral API key
+const apiKey = 'B0H4rJ9cYjb5LhLy7FciZIv7H3rvF3Xk';
 
 const systemPrompt = "Examine the prompt and respond precisely as directed, omitting superfluous information. Provide brief responses, typically 1-2 sentences, except when detailed answers like essays, poems, or stories are requested.";
 
