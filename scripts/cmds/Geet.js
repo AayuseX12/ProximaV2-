@@ -108,12 +108,24 @@ module.exports = {
     await api.sendMessage(`⏬ Downloading: ${selected.title}`, threadID);
 
     try {
-      // Using your new API
-      const apiURL = `http://music-api-hruy.onrender.com/download/${videoId}/${apiType}`;
+      // Using your new API - trying multiple possible endpoint formats
+      let apiURL = `http://aayushayoutubedownloader-1.onrender.com/download/${videoId}/${apiType}`;
+      let res = null;
 
-      console.log(`Using API URL: ${apiURL}`);
+      console.log(`Trying API URL: ${apiURL}`);
       
-      const res = await axios.get(apiURL, { timeout: 30000 });
+      try {
+        res = await axios.get(apiURL, { timeout: 120000 });
+      } catch (err) {
+        if (err.response?.status === 404) {
+          // Try alternative endpoint format
+          apiURL = `https://aayushayoutubedownloader-1.onrender.com/youtube/${videoId}/${apiType}`;
+          console.log(`404 error, trying alternative URL: ${apiURL}`);
+          res = await axios.get(apiURL, { timeout: 120000 });
+        } else {
+          throw err;
+        }
+      }
 
       if (!res.data || !res.data.success) {
         throw new Error(res.data?.message || "API returned unsuccessful response");
