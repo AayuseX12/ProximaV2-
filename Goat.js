@@ -244,20 +244,20 @@ if (config.autoRestart) {
 //     });
 // })();
 
-	async function sendMail({ to, subject, text, html, attachments }) {
-		const transporter = nodemailer.createTransport({
-			host: 'smtp.gmail.com',
-			service: 'Gmail',
-			auth: {
-				type: 'OAuth2',
-				user: email,
-				clientId,
-				clientSecret,
+	// async function sendMail({ to, subject, text, html, attachments }) {
+		// const transporter = nodemailer.createTransport({
+			// host: 'smtp.gmail.com',
+			// service: 'Gmail',
+			// auth: {
+				// type: 'OAuth2',
+				// user: email,
+				// clientId,
+				// clientSecret,
 				refreshToken,
-				accessToken
+				// accessToken
 			}
 		});
-		const mailOptions = {
+		// const mailOptions = {
 			from: email,
 			to,
 			subject,
@@ -265,12 +265,12 @@ if (config.autoRestart) {
 			html,
 			attachments
 		};
-		const info = await transporter.sendMail(mailOptions);
+		// const info = await transporter.sendMail(mailOptions);
 		return info;
 	}
 
-	global.utils.sendMail = sendMail;
-	global.utils.transporter = transporter;
+	// global.utils.sendMail = sendMail;
+	// global.utils.transporter = transporter;
 
 	// ———————————————— CHECK VERSION ———————————————— //
 	const { data: { version } } = await axios.get("https://raw.githubusercontent.com/ntkhang03/Goat-Bot-V2/main/package.json");
