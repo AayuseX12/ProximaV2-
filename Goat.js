@@ -273,7 +273,7 @@ if (config.autoRestart) {
 	// global.utils.transporter = transporter;
 
 	// ———————————————— CHECK VERSION ———————————————— //
-	const { data: { version } } = await axios.get("https://raw.githubusercontent.com/ntkhang03/Goat-Bot-V2/main/package.json");
+	const { data: { version } } = axios.get("https://raw.githubusercontent.com/ntkhang03/Goat-Bot-V2/main/package.json");
 	const currentVersion = require("./package.json").version;
 	if (compareVersion(version, currentVersion) === 1)
 		utils.log.master("NEW VERSION", getText(
