@@ -216,32 +216,33 @@ if (config.autoRestart) {
 	}
 }
 
-(async () => {
-	// ———————————————— SETUP MAIL ———————————————— //
-	const { gmailAccount } = config.credentials;
-	const { email, clientId, clientSecret, refreshToken } = gmailAccount;
-	const OAuth2 = google.auth.OAuth2;
-	const OAuth2_client = new OAuth2(clientId, clientSecret);
-	OAuth2_client.setCredentials({ refresh_token: refreshToken });
-	let accessToken;
-	try {
-		accessToken = await OAuth2_client.getAccessToken();
-	}
-	catch (err) {
-		throw new Error(getText("Goat", "googleApiTokenExpired"));
-	}
-	const transporter = nodemailer.createTransport({
-		host: 'smtp.gmail.com',
-		service: 'Gmail',
-		auth: {
-			type: 'OAuth2',
-			user: email,
-			clientId,
-			clientSecret,
-			refreshToken,
-			accessToken
-		}
-	});
+// (async () => {
+//     // ———————————————— SETUP MAIL ———————————————— //
+//     const { gmailAccount } = config.credentials;
+//     const { email, clientId, clientSecret, refreshToken } = gmailAccount;
+//     const OAuth2 = google.auth.OAuth2;
+//     const OAuth2_client = new OAuth2(clientId, clientSecret);
+//     OAuth2_client.setCredentials({ refresh_token: refreshToken });
+//     let accessToken;
+//     try {
+//         accessToken = await OAuth2_client.getAccessToken();
+//     }
+//     catch (err) {
+//         throw new Error(getText("Goat", "googleApiTokenExpired"));
+//     }
+//     const transporter = nodemailer.createTransporter({
+//         host: 'smtp.gmail.com',
+//         service: 'Gmail',
+//         auth: {
+//             type: 'OAuth2',
+//             user: email,
+//             clientId,
+//             clientSecret,
+//             refreshToken,
+//             accessToken
+//         }
+//     });
+// })();
 
 	async function sendMail({ to, subject, text, html, attachments }) {
 		const transporter = nodemailer.createTransport({
