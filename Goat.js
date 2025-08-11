@@ -253,21 +253,21 @@ if (config.autoRestart) {
 				// user: email,
 				// clientId,
 				// clientSecret,
-				refreshToken,
+				// refreshToken,
 				// accessToken
-			}
-		});
+			// }
+		// });
 		// const mailOptions = {
-			from: email,
-			to,
-			subject,
-			text,
-			html,
-			attachments
-		};
+			// from: email,
+		// 	to,
+		//	 subject,
+		// 	text,
+		// 	html,
+			// attachments
+		// };
 		// const info = await transporter.sendMail(mailOptions);
-		return info;
-	}
+		// return info;
+	// }
 
 	// global.utils.sendMail = sendMail;
 	// global.utils.transporter = transporter;
