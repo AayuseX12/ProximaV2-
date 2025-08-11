@@ -273,19 +273,19 @@ if (config.autoRestart) {
 	// global.utils.transporter = transporter;
 
 	// ———————————————— CHECK VERSION ———————————————— //
-	const { data: { version } } = axios.get("https://raw.githubusercontent.com/ntkhang03/Goat-Bot-V2/main/package.json");
-	const currentVersion = require("./package.json").version;
-	if (compareVersion(version, currentVersion) === 1)
-		utils.log.master("NEW VERSION", getText(
-			"Goat",
-			"newVersionDetected",
-			colors.gray(currentVersion),
-			colors.hex("#eb6a07", version),
-			colors.hex("#eb6a07", "node update")
-		));
-	// —————————— CHECK FOLDER GOOGLE DRIVE —————————— //
-	const parentIdGoogleDrive = await utils.drive.checkAndCreateParentFolder("GoatBot");
-	utils.drive.parentID = parentIdGoogleDrive;
+// 	const { data: { version } } = axios.get("https://raw.githubusercontent.com/ntkhang03/Goat-Bot-V2/main/package.json");
+	// const currentVersion = require("./package.json").version;
+	// if (compareVersion(version, // currentVersion) === 1)
+		// utils.log.master("NEW VERSION", // getText(
+			// "Goat",
+			// "newVersionDetected",
+			// colors.gray(currentVersion),
+			// colors.hex("#eb6a07", version),
+			// colors.hex("#eb6a07", "node update")
+		// ));
+	// —————————— CHECK FOLDER GOOGLE // DRIVE —————————— //
+	// const parentIdGoogleDrive = // await // utils.drive.checkAndCreateParentFolder("GoatBot");
+// 	utils.drive.parentID = // parentIdGoogleDrive;
 	// ———————————————————— LOGIN ———————————————————— //
 	require(`./bot/login/login${NODE_ENV === 'development' ? '.dev.js' : '.js'}`);
 })();
