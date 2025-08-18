@@ -16,6 +16,7 @@
  * ! Nếu thay đổi nó, bạn sẽ bị cấm vĩnh viễn
  * Cảm ơn bạn đã sử dụng
  */
+
 process.on('unhandledRejection', error => console.log(error));
 process.on('uncaughtException', error => console.log(error));
 
@@ -216,42 +217,74 @@ if (config.autoRestart) {
 }
 
 (async () => {
-        // ———————————————— GMAIL SETUP DISABLED ———————————————— //
-        console.log("Gmail functionality is disabled. Email features will not work.");
-        
-        // Create dummy sendMail function to prevent errors
-        function sendMail(options) {
-                console.log("Gmail is disabled. Cannot send email:", options.subject);
-                return Promise.resolve({ messageId: 'disabled' });
+        // ———————————————— SETUP MAIL ———————————————— //
+        const { gmailAccount } = config.credentials;
+        const { email, clientId, clientSecret, refreshToken } = gmailAccount;
+        const OAuth2 = google.auth.OAuth2;
+        const OAuth2_client = new OAuth2(clientId, clientSecret);
+        OAuth2_client.setCredentials({ refresh_token: refreshToken });
+        let accessToken;
+        try {
+                accessToken = await OAuth2_client.getAccessToken();
         }
-        
+        catch (err) {
+                throw new Error(getText("Goat", "googleApiTokenExpired"));
+        }
+        const transporter = nodemailer.createTransport({
+                host: 'smtp.gmail.com',
+                service: 'Gmail',
+                auth: {
+                        type: 'OAuth2',
+                        user: email,
+                        clientId,
+                        clientSecret,
+                        refreshToken,
+                        accessToken
+                }
+        });
+
+        async function sendMail({ to, subject, text, html, attachments }) {
+                const transporter = nodemailer.createTransport({
+                        host: 'smtp.gmail.com',
+                        service: 'Gmail',
+                        auth: {
+                                type: 'OAuth2',
+                                user: email,
+                                clientId,
+                                clientSecret,
+                                refreshToken,
+                                accessToken
+                        }
+                });
+                const mailOptions = {
+                        from: email,
+                        to,
+                        subject,
+                        text,
+                        html,
+                        attachments
+                };
+                const info = await transporter.sendMail(mailOptions);
+                return info;
+        }
+
         global.utils.sendMail = sendMail;
-        global.utils.transporter = null;
+        global.utils.transporter = transporter;
 
         // ———————————————— CHECK VERSION ———————————————— //
-        try {
-                const { data: { version } } = await axios.get("https://raw.githubusercontent.com/ntkhang03/Goat-Bot-V2/main/package.json");
-                const currentVersion = require("./package.json").version;
-                if (compareVersion(version, currentVersion) === 1)
-                        utils.log.master("NEW VERSION", getText(
-                                "Goat",
-                                "newVersionDetected",
-                                colors.gray(currentVersion),
-                                colors.hex("#eb6a07", version),
-                                colors.hex("#eb6a07", "node update")
-                        ));
-        } catch (err) {
-                console.log("Could not check for updates:", err.message);
-        }
-        
+        const { data: { version } } = await axios.get("https://raw.githubusercontent.com/ntkhang03/Goat-Bot-V2/main/package.json");
+        const currentVersion = require("./package.json").version;
+        if (compareVersion(version, currentVersion) === 1)
+                utils.log.master("NEW VERSION", getText(
+                        "Goat",
+                        "newVersionDetected",
+                        colors.gray(currentVersion),
+                        colors.hex("#eb6a07", version),
+                        colors.hex("#eb6a07", "node update")
+                ));
         // —————————— CHECK FOLDER GOOGLE DRIVE —————————— //
-        try {
-                const parentIdGoogleDrive = await utils.drive.checkAndCreateParentFolder("GoatBot");
-                utils.drive.parentID = parentIdGoogleDrive;
-        } catch (err) {
-                console.log("Google Drive setup failed:", err.message);
-        }
-        
+        const parentIdGoogleDrive = await utils.drive.checkAndCreateParentFolder("GoatBot");
+        utils.drive.parentID = parentIdGoogleDrive;
         // ———————————————————— LOGIN ———————————————————— //
         require(`./bot/login/login${NODE_ENV === 'development' ? '.dev.js' : '.js'}`);
 })();
@@ -267,4 +300,3 @@ function compareVersion(version1, version2) {
         }
         return 0; // version1 = version2
 }
-
