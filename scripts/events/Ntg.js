@@ -36,7 +36,7 @@ const handleBotAddition = async (threadID, message, api) => {
 
 // Function to change the bot's nickname
 const setBotNickname = async (threadID, api) => {
-  const newNickname = "Aayusha's Bot";
+  const newNickname = "[#] • Proxima Bot";
   try {
     await api.changeNickname(newNickname, threadID, api.getCurrentUserID());
   } catch (error) {
