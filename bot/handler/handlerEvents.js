@@ -260,10 +260,10 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
             try {
                 // Get the single GIF as stream for attachment
                 const gifResponse = await axios.get(SINGLE_GIF_URL, { responseType: 'stream' });
-                
+
                 // Get the original error message from language files
                 const originalErrorMessage = utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", prefix);
-                
+
                 return await message.reply({
                     body: originalErrorMessage,
                     attachment: gifResponse.data
@@ -279,10 +279,13 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
             return await message.reply(
                 utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound", commandName, prefix)
             );
-                                else
-                                        return true;
-                        // ————————————— CHECK PERMISSION ———————————— //
-                        const roleConfig = getRoleConfig(utils, command, isGroup, threadData, commandName);
+        }
+    } else {
+        return true;
+    }
+}
+// ————————————— CHECK PERMISSION ———————————— //
+const roleConfig = getRoleConfig(utils, command, isGroup, threadData, commandName);
                         const needRole = roleConfig.onStart;
 
                         if (needRole > role) {
