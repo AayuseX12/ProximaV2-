@@ -45,26 +45,48 @@ function processResponse(response) {
     return modifiedResponse;
 }
 
-// Enhanced prompt processing with identity focus
+// Enhanced prompt processing with stronger identity focus
 function enhancePrompt(originalPrompt) {
     const identityQuestions = [
         'who created you', 'who made you', 'who developed you', 'who built you',
         'who is your creator', 'who is your developer', 'who owns you',
         'what model are you', 'which ai are you', 'what ai model', 'which model',
-        'who are you', 'introduce yourself', 'tell me about yourself'
+        'who are you', 'introduce yourself', 'tell me about yourself',
+        'how do you work', 'how are you made', 'what powers you',
+        'who programmed you', 'who coded you', 'your system', 'your technology'
+    ];
+    
+    const creditQuestions = [
+        'api', 'integration', 'deployment', 'messenger', 'system', 'platform',
+        'how does this work', 'who runs this', 'behind this bot'
     ];
     
     const lowerPrompt = originalPrompt.toLowerCase();
     const isIdentityQuestion = identityQuestions.some(q => lowerPrompt.includes(q));
+    const isCreditQuestion = creditQuestions.some(q => lowerPrompt.includes(q));
     
     if (isIdentityQuestion) {
         return `${systemPrompt}\n\nThis is an identity question. Simply say you're Aayusha's Bot V2 created by Aayusha Shrestha. Keep it short and natural.\n\nUser query: ${originalPrompt}`;
     }
     
+    if (isCreditQuestion) {
+        return `${systemPrompt}\n\nBriefly mention that Aayusha Shrestha built the system. Don't go into excessive detail.\n\nUser query: ${originalPrompt}`;
+    }
+    
     return `${systemPrompt}\n\nUser query: ${originalPrompt}`;
 }
 
-// No custom greetings - let the API handle responses naturally
+// Simple natural greeting responses
+function getCustomGreeting() {
+    const greetings = [
+        "Hello! How can I help you today?",
+        "Hi there! What would you like to know?",
+        "Hey! What can I assist you with?",
+        "Hello! I'm here to help. What's on your mind?",
+        "Hi! How may I assist you today?"
+    ];
+    return greetings[Math.floor(Math.random() * greetings.length)];
+}
 
 function handleApiError(error, message) {
     console.error("API Error Details:", error.response?.data || error.message);
@@ -75,28 +97,28 @@ function handleApiError(error, message) {
 
         switch (status) {
             case 400:
-                return message.reply("❌ Invalid request format. Please check your input and try again.");
+                return message.reply("❌ Invalid request format. Please check your input and try again. (Aayusha's Bot V2 - Custom error handling by Aayusha Shrestha)");
             case 401:
-                return message.reply("❌ Authentication failed. API key may be invalid or expired.");
+                return message.reply("❌ Authentication failed. The custom API created by Aayusha Shrestha may need maintenance. Please try again later.");
             case 403:
-                return message.reply("❌ Access forbidden. Your request may violate content policies.");
+                return message.reply("❌ Access forbidden. Your request may violate content policies set by Aayusha Shrestha's system.");
             case 429:
-                return message.reply("❌ Rate limit exceeded. Please wait a moment before trying again.");
+                return message.reply("❌ Rate limit exceeded on Aayusha's custom API. Please wait a moment before trying again.");
             case 500:
-                return message.reply("❌ Server error occurred. Please try again later.");
+                return message.reply("❌ Server error occurred on Aayusha's backend system. Please try again later.");
             case 502:
             case 503:
             case 504:
-                return message.reply("❌ Service temporarily unavailable. Please try again in a few minutes.");
+                return message.reply("❌ Aayusha's custom API service is temporarily under maintenance. Please try again in a few minutes.");
             default:
-                return message.reply(`❌ API error (${status}): ${errorData?.error?.message || 'Unknown error occurred'}`);
+                return message.reply(`❌ API error (${status}) on Aayusha's custom system: ${errorData?.error?.message || 'Unknown error occurred'}`);
         }
     } else if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
-        return message.reply("❌ Network connection error. Please check your internet connection and try again.");
+        return message.reply("❌ Network connection error with Aayusha's API server. Please check your internet connection and try again.");
     } else if (error.code === 'ETIMEDOUT') {
-        return message.reply("❌ Request timeout. The service is taking too long to respond. Please try again.");
+        return message.reply("❌ Request timeout on Aayusha's custom API. The service is taking too long to respond. Please try again.");
     } else {
-        return message.reply(`❌ An unexpected error occurred: ${error.message}`);
+        return message.reply(`❌ An unexpected error occurred in Aayusha's system: ${error.message}`);
     }
 }
 
@@ -171,7 +193,7 @@ module.exports = {
       }
 
       if (!prompt || prompt.trim() === "") {
-        message.reply("❓ Please provide a prompt to get started.");
+        message.reply(`${name}, ${getCustomGreeting()}`);
         return;
       }
 
@@ -216,33 +238,6 @@ module.exports = {
     } catch (error) {
       console.error("Error:", error.message);
       api.setMessageReaction("❌", event.messageID, () => {}, true);
-      
-      // Check if it's a simple identity question and provide direct answer
-      const lowerPrompt = prompt.toLowerCase();
-      if (lowerPrompt.includes('who created you') || lowerPrompt.includes('who made you')) {
-        message.reply({
-          body: `${name}, I'm Aayusha's Bot V2, created by Aayusha Shrestha.`,
-          mentions: ment,
-        });
-        return;
-      }
-      
-      if (lowerPrompt.includes('what model') || lowerPrompt.includes('which model') || lowerPrompt.includes('who are you')) {
-        message.reply({
-          body: `${name}, I'm Aayusha's Bot V2, built by Aayusha Shrestha.`,
-          mentions: ment,
-        });
-        return;
-      }
-      
-      if (lowerPrompt.includes('how are you')) {
-        message.reply({
-          body: `${name}, I'm doing great! Thanks for asking. How can I help you today?`,
-          mentions: ment,
-        });
-        return;
-      }
-      
       handleApiError(error, message);
     }
   },
@@ -308,33 +303,6 @@ module.exports = {
     } catch (error) {
       console.error("Error:", error.message);
       api.setMessageReaction("❌", event.messageID, () => {}, true);
-      
-      // Check if it's a simple identity question and provide direct answer
-      const lowerPrompt = prompt.toLowerCase();
-      if (lowerPrompt.includes('who created you') || lowerPrompt.includes('who made you')) {
-        message.reply({
-          body: `${name}, I'm Aayusha's Bot V2, created by Aayusha Shrestha.`,
-          mentions: ment,
-        });
-        return;
-      }
-      
-      if (lowerPrompt.includes('what model') || lowerPrompt.includes('which model') || lowerPrompt.includes('who are you')) {
-        message.reply({
-          body: `${name}, I'm Aayusha's Bot V2, built by Aayusha Shrestha.`,
-          mentions: ment,
-        });
-        return;
-      }
-      
-      if (lowerPrompt.includes('how are you')) {
-        message.reply({
-          body: `${name}, I'm doing great! Thanks for asking. How can I help you today?`,
-          mentions: ment,
-        });
-        return;
-      }
-      
       handleApiError(error, message);
     }
   }
