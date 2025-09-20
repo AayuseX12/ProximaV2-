@@ -1,3 +1,5 @@
+const axios = require("axios");
+const SINGLE_GIF_URL = 'https://drive.google.com/uc?export=download&id=11Z93iJd7wi7pwU4T-obZf3PoBY1JqYFZ';
 const fs = require("fs-extra");
 const nullAndUndefined = [undefined, null];
 // const { config } = global.GoatBot;
@@ -250,13 +252,33 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
                         // —————  CHECK BANNED OR ONLY ADMIN BOX  ————— //
                         if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode))
                                 return;
-                        if (!command)
-                                if (!hideNotiMessage.commandNotFound)
-                                        return await message.reply(
-                                                commandName ?
-                                                        utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound", commandName, prefix) :
-                                                        utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", prefix)
-                                        );
+                        if (!command) {
+    if (!hideNotiMessage.commandNotFound) {
+        // Check if user typed just the prefix (#) with no command
+        if (!commandName || commandName === '') {
+            // Send both text and the single GIF
+            try {
+                // Get the single GIF as stream for attachment
+                const gifResponse = await axios.get(SINGLE_GIF_URL, { responseType: 'stream' });
+                
+                // Get the original error message from language files
+                const originalErrorMessage = utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", prefix);
+                
+                return await message.reply({
+                    body: originalErrorMessage,
+                    attachment: gifResponse.data
+                });
+            } catch (error) {
+                console.error('Error sending GIF:', error);
+                // Fallback: send text with GIF URL if attachment fails
+                const originalErrorMessage = utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", prefix);
+                return await message.reply(`${originalErrorMessage}\n${SINGLE_GIF_URL}`);
+            }
+        } else {
+            // Original behavior for invalid commands (when they type # + something invalid)
+            return await message.reply(
+                utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound", commandName, prefix)
+            );
                                 else
                                         return true;
                         // ————————————— CHECK PERMISSION ———————————— //
