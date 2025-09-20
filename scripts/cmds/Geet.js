@@ -2,14 +2,44 @@ const fs = require("fs");
 const path = require("path");
 const ytSearch = require("yt-search");
 const axios = require("axios");
-const https = require("https");
-const http = require("http");
+
+const baseApiUrl = async () => {
+    const base = await axios.get(`https://raw.githubusercontent.com/Mostakim0978/D1PT0/refs/heads/main/baseApiUrl.json`);
+    return base.data.api;
+};
+
+(async () => {
+    global.apis = {
+        diptoApi: await baseApiUrl()
+    };
+})();
+
+async function getStreamFromURL(url, pathName) {
+    try {
+        const response = await axios.get(url, { responseType: "stream" });
+        response.data.path = pathName;
+        return response.data;
+    } catch (err) {
+        throw new Error("Failed to get stream from URL.");
+    }
+}
+
+global.utils = {
+    ...global.utils,
+    getStreamFromURL: global.utils.getStreamFromURL || getStreamFromURL
+};
+
+function getVideoID(url) {
+    const regex = /^(?:https?:\/\/)?(?:m\.|www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))((\w|-){11})(?:\S+)?$/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+}
 
 module.exports = {
   config: {
     name: "youtube",
-    version: "1.1.3",
-    author: "Aayusha",
+    version: "1.2.0",
+    author: "Aayusha (Updated with new API)",
     countDown: 5,
     role: 0,
     shortDescription: {
@@ -68,7 +98,6 @@ module.exports = {
       }, threadId, (err, info) => {
         if (err) return console.log("Send message error:", err);
 
-        // Using GoatBot onReply like in callad
         global.GoatBot.onReply.set(info.messageID, {
           commandName: this.config.name,
           messageID: info.messageID,
@@ -77,7 +106,6 @@ module.exports = {
           type: type
         });
 
-        // Cleanup thumbnails
         setTimeout(() => {
           thumbs.forEach(p => fs.existsSync(p) && fs.unlinkSync(p));
         }, 10000);
@@ -102,82 +130,71 @@ module.exports = {
       return api.sendMessage("❌ Invalid number. Reply 1-5.", threadID, messageID);
 
     const selected = Reply.results[choice - 1];
-    const apiType = Reply.type === "music" ? "audio" : "video";
     const videoId = selected.videoId;
 
     await api.sendMessage(`⏬ Downloading: ${selected.title}`, threadID);
 
     try {
-      // Using your new API - trying multiple possible endpoint formats
-      let apiURL = `http://aayushayoutubedownloader-1.onrender.com/download/${videoId}/${apiType}`;
-      let res = null;
+      let retries = 0;
+      while (!global.apis?.diptoApi && retries < 10) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        retries++;
+      }
 
-      console.log(`Trying API URL: ${apiURL}`);
+      if (!global.apis?.diptoApi) {
+        throw new Error("API not initialized. Please try again.");
+      }
+
+      const format = "mp4";
       
-      try {
-        res = await axios.get(apiURL, { timeout: 120000 });
-      } catch (err) {
-        if (err.response?.status === 404) {
-          // Try alternative endpoint format
-          apiURL = `https://aayushayoutubedownloader-1.onrender.com/youtube/${videoId}/${apiType}`;
-          console.log(`404 error, trying alternative URL: ${apiURL}`);
-          res = await axios.get(apiURL, { timeout: 120000 });
-        } else {
-          throw err;
-        }
-      }
+      console.log(`Fetching from API: ${global.apis.diptoApi}/ytDl3?link=${videoId}&format=${format}`);
+      
+      const { data: { title, quality, downloadLink } } = await axios.get(
+        `${global.apis.diptoApi}/ytDl3?link=${videoId}&format=${format}`,
+        { timeout: 120000 }
+      );
 
-      if (!res.data || !res.data.success) {
-        throw new Error(res.data?.message || "API returned unsuccessful response");
-      }
-
-      const downloadUrl = res.data.download_url;
-      if (!downloadUrl) {
+      if (!downloadLink) {
         throw new Error("Download URL not found in API response.");
       }
 
-      console.log(`Download URL obtained: ${downloadUrl}`);
-
-      const extension = Reply.type === "music" ? "mp3" : "mp4";
-      const filename = res.data.filename || `${selected.title.replace(/[^\w\s]/gi, "").substring(0, 40)}_${Date.now()}.${extension}`;
-      const filePath = path.join(__dirname, "cache", filename);
-
-      await downloadFile(downloadUrl, filePath);
-
-      if (!fs.existsSync(filePath)) throw new Error("Download failed.");
-      if (fs.statSync(filePath).size < 10000) throw new Error("Downloaded file is too small, likely corrupted.");
-
-      console.log(`Download successful: ${filePath} (${fs.statSync(filePath).size} bytes)`);
+      console.log(`Download URL obtained: ${downloadLink}`);
 
       await api.sendMessage({
-        body: `✅ Downloaded: ${selected.title}\n⏱️ ${selected.timestamp}\n👁️ ${selected.views.toLocaleString()}`,
-        attachment: fs.createReadStream(filePath),
-      }, threadID, () => {
-        setTimeout(() => fs.existsSync(filePath) && fs.unlinkSync(filePath), 10000);
-      });
+        body: `✅ Downloaded: ${title || selected.title}\n📺 Quality: ${quality}\n⏱️ ${selected.timestamp}\n👁️ ${selected.views.toLocaleString()}`,
+        attachment: await global.utils.getStreamFromURL(downloadLink, `${title || selected.title}.mp4`)
+      }, threadID, messageID);
 
     } catch (err) {
       console.error("Download error:", err.message);
-      api.sendMessage(`❌ Failed to download: ${err.message}. Try again later.`, threadID);
+      
+      let errorMsg = "❌ Failed to download: ";
+      if (err.message.includes("timeout")) {
+        errorMsg += "Request timeout. The video might be too long or server is busy.";
+      } else if (err.message.includes("API not initialized")) {
+        errorMsg += "API not ready. Please try again in a moment.";
+      } else if (Reply.type === "music") {
+        errorMsg += "Audio downloads are not supported with the new API. Only video downloads are available.";
+      } else {
+        errorMsg += err.message;
+      }
+      
+      api.sendMessage(errorMsg, threadID);
     }
   },
 };
 
 async function downloadFile(url, filePath) {
   return new Promise((resolve, reject) => {
-    // Create directory if it doesn't exist
     const dir = path.dirname(filePath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    // Handle both http and https URLs
-    const protocol = url.startsWith('https:') ? https : require('http');
-
+    const protocol = url.startsWith('https:') ? require('https') : require('http');
     const file = fs.createWriteStream(filePath);
 
     const request = protocol.get(url, (res) => {
-      // Handle redirects
       if (res.statusCode === 301 || res.statusCode === 302) {
         if (res.headers.location) {
           file.close();
