@@ -30,7 +30,7 @@
     "whiteListIds": [61552696929392,100089741361051,61552072737061,61574631227345,61574765378290],
     "notes": "if you enable this feature, only the ids in the whiteListIds section can use the bot"
   },
-  "nickNameBot": "[#]•Proxima",
+  "nickNameBot": "[#] • Proxima Bot",
   "prefix": "#",
   "database": {
     "type": "sqlite",
