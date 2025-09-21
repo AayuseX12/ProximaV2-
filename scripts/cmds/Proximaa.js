@@ -1,6 +1,6 @@
 module.exports = {
   config: {
-    name: "Proxima",
+    name: "pxm",
     version: "1.0",
     author: "Aayusha",
     countDown: 5,
