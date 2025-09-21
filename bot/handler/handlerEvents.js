@@ -297,22 +297,23 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
     } else {
         return true;
     }
-}    // 𝗘𝗡𝗗𝗦 𝗙𝗥𝗢𝗠 𝗛𝗘𝗥𝗘 //
+}
+
 // ————————————— CHECK PERMISSION ———————————— //
 const roleConfig = getRoleConfig(utils, command, isGroup, threadData, commandName);
-                        const needRole = roleConfig.onStart;
+const needRole = roleConfig.onStart;
 
-                        if (needRole > role) {
-                                if (!hideNotiMessage.needRoleToUseCmd) {
-                                        if (needRole == 1)
-                                                return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdmin", commandName));
-                                        else if (needRole == 2)
-                                                return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdminBot2", commandName));
-                                }
-                                else {
-                                        return true;
-                                }
-                        }
+if (needRole > role) {
+    if (!hideNotiMessage.needRoleToUseCmd) {
+        if (needRole == 1)
+            return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdmin", commandName));
+        else if (needRole == 2)
+            return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdminBot2", commandName));
+    }
+    else {
+        return true;
+    }
+}
                         // ———————————————— countDown ———————————————— //
                         if (!client.countDown[commandName])
                                 client.countDown[commandName] = {};
