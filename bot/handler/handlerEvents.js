@@ -12,8 +12,6 @@ const gifLinks = [
 ];
 const fs = require("fs-extra");
 const nullAndUndefined = [undefined, null];
-// const { config } = global.GoatBot;
-// const { utils } = global;
 
 function getType(obj) {
         return Object.prototype.toString.call(obj).slice(8, -1);
@@ -73,12 +71,6 @@ function getRoleConfig(utils, command, isGroup, threadData, commandName) {
         }
 
         return roleConfig;
-        // {
-        //         onChat,
-        //         onStart,
-        //         onReaction,
-        //         onReply
-        // }
 }
 
 function isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, lang) {
@@ -129,7 +121,6 @@ function isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, 
         }
         return false;
 }
-
 
 function createGetText2(langCode, pathCustomLang, prefix, command) {
         const commandType = command.config.countDown ? "command" : "command event";
@@ -240,87 +231,68 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
                                         break;
                                 }
                         }
-                        // ————————————— GET COMMAND ————————————— //
-const command = client.commands.get(commandName);
 
-// ————————————— SET COMMAND NAME ————————————— //
-if (command)
-    commandName = command.config.name;
+                        // ————————————— SET COMMAND NAME ————————————— //
+                        if (command)
+                                commandName = command.config.name;
+                        
+                        // —————  CHECK BANNED OR ONLY ADMIN BOX  ————— //
+                        if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode))
+                                return;
 
-// ——————— FUNCTION REMOVE COMMAND NAME ———————— //
-function removeCommandNameFromBody(body_, prefix_, commandName_) {
-    if (arguments.length) {
-        if (typeof body_ != "string")
-            throw new Error(`The first argument (body) must be a string, but got "${getType(body_)}"`);
-        if (typeof prefix_ != "string")
-            throw new Error(`The second argument (prefix) must be a string, but got "${getType(prefix_)}"`);
-        if (typeof commandName_ != "string")
-            throw new Error(`The third argument (commandName) must be a string, but got "${getType(commandName_)}"`);
+                        // 𝗣𝗥𝗘𝗙𝗜𝗫 𝗕𝗟𝗢𝗖𝗞 𝗦𝗧𝗔𝗥𝗧 𝗙𝗥𝗢𝗠 𝗛𝗘𝗥𝗘 //
+                        if (!command) {
+                                if (!hideNotiMessage.commandNotFound) {
+                                        // Check if user typed just the prefix (#) with no command
+                                        if (!commandName || commandName === '') {
+                                                // Send both text and a random GIF
+                                                try {
+                                                        // Select a random GIF from the array
+                                                        const randomGifUrl = gifLinks[Math.floor(Math.random() * gifLinks.length)];
+                                                        
+                                                        // Get the random GIF as stream for attachment
+                                                        const gifResponse = await axios.get(randomGifUrl, { responseType: 'stream' });
 
-        return body_.replace(new RegExp(`^${prefix_}(\\s+|)${commandName_}`, "i"), "").trim();
-    }
-    else {
-        return body.replace(new RegExp(`^${prefix}(\\s+|)${commandName}`, "i"), "").trim();
-    }
-}
+                                                        // Get the original error message from language files
+                                                        const originalErrorMessage = utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", prefix);
 
-// —————  CHECK BANNED OR ONLY ADMIN BOX  ————— //
-if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode))
-    return;
+                                                        return await message.reply({
+                                                                body: originalErrorMessage,
+                                                                attachment: gifResponse.data
+                                                        });
+                                                } catch (error) {
+                                                        console.error('Error sending GIF:', error);
+                                                        // Fallback: send text with random GIF URL if attachment fails
+                                                        const randomGifUrl = gifLinks[Math.floor(Math.random() * gifLinks.length)];
+                                                        const originalErrorMessage = utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", prefix);
+                                                        return await message.reply(`${originalErrorMessage}\n${randomGifUrl}`);
+                                                }
+                                        } else {
+                                                // Original behavior for invalid commands (when they type # + something invalid)
+                                                return await message.reply(
+                                                        utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound", commandName, prefix)
+                                                );
+                                        }
+                                } else {
+                                        return true;
+                                }
+                        }
 
-// 𝗣𝗥𝗘𝗙𝗜𝗫 𝗕𝗟𝗢𝗖𝗞 𝗦𝗧𝗔𝗥𝗧 𝗙𝗥𝗢𝗠 𝗛𝗘𝗥𝗘 //
-if (!command) {
-    if (!hideNotiMessage.commandNotFound) {
-        // Check if user typed just the prefix (#) with no command
-        if (!commandName || commandName === '') {
-            // Send both text and a random GIF
-            try {
-                // Select a random GIF from the array
-                const randomGifUrl = gifLinks[Math.floor(Math.random() * gifLinks.length)];
-                
-                // Get the random GIF as stream for attachment
-                const gifResponse = await axios.get(randomGifUrl, { responseType: 'stream' });
+                        // ————————————— CHECK PERMISSION ———————————— //
+                        const roleConfig = getRoleConfig(utils, command, isGroup, threadData, commandName);
+                        const needRole = roleConfig.onStart;
 
-                // Get the original error message from language files
-                const originalErrorMessage = utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", prefix);
-
-                return await message.reply({
-                    body: originalErrorMessage,
-                    attachment: gifResponse.data
-                });
-            } catch (error) {
-                console.error('Error sending GIF:', error);
-                // Fallback: send text with random GIF URL if attachment fails
-                const randomGifUrl = gifLinks[Math.floor(Math.random() * gifLinks.length)];
-                const originalErrorMessage = utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", prefix);
-                return await message.reply(`${originalErrorMessage}\n${randomGifUrl}`);
-            }
-        } else {
-            // Original behavior for invalid commands (when they type # + something invalid)
-            return await message.reply(
-                utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound", commandName, prefix)
-            );
-        }
-    } else {
-        return true;
-    }
-}
-
-// ————————————— CHECK PERMISSION ———————————— //
-const roleConfig = getRoleConfig(utils, command, isGroup, threadData, commandName);
-const needRole = roleConfig.onStart;
-
-if (needRole > role) {
-    if (!hideNotiMessage.needRoleToUseCmd) {
-        if (needRole == 1)
-            return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdmin", commandName));
-        else if (needRole == 2)
-            return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdminBot2", commandName));
-    }
-    else {
-        return true;
-    }
-}
+                        if (needRole > role) {
+                                if (!hideNotiMessage.needRoleToUseCmd) {
+                                        if (needRole == 1)
+                                                return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdmin", commandName));
+                                        else if (needRole == 2)
+                                                return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdminBot2", commandName));
+                                }
+                                else {
+                                        return true;
+                                }
+                        }
                         // ———————————————— countDown ———————————————— //
                         if (!client.countDown[commandName])
                                 client.countDown[commandName] = {};
@@ -349,6 +321,21 @@ if (needRole > role) {
 
                                 createMessageSyntaxError(commandName);
                                 const getText2 = createGetText2(langCode, `${process.cwd()}/languages/cmds/${langCode}.js`, prefix, command);
+                                const removeCommandNameFromBody = function removeCommandNameFromBody(body_, prefix_, commandName_) {
+                                        if (arguments.length) {
+                                                if (typeof body_ != "string")
+                                                        throw new Error(`The first argument (body) must be a string, but got "${getType(body_)}"`);
+                                                if (typeof prefix_ != "string")
+                                                        throw new Error(`The second argument (prefix) must be a string, but got "${getType(prefix_)}"`);
+                                                if (typeof commandName_ != "string")
+                                                        throw new Error(`The third argument (commandName) must be a string, but got "${getType(commandName_)}"`);
+
+                                                return body_.replace(new RegExp(`^${prefix_}(\\s+|)${commandName_}`, "i"), "").trim();
+                                        }
+                                        else {
+                                                return body.replace(new RegExp(`^${prefix}(\\s+|)${commandName}`, "i"), "").trim();
+                                        }
+                                };
                                 await command.onStart({
                                         ...parameters,
                                         args,
@@ -365,6 +352,7 @@ if (needRole > role) {
                         }
                 }
 
+                // ... rest of your functions (onChat, onAnyEvent, etc.) remain the same ...
 
                 /*
                  +------------------------------------------------+
@@ -423,7 +411,6 @@ if (needRole > role) {
                                         });
                         }
                 }
-
 
                 /*
                  +------------------------------------------------+
@@ -536,7 +523,6 @@ if (needRole > role) {
                         }
                 }
 
-
                 /* 
                  +------------------------------------------------+
                  |                    ON REPLY                    |
@@ -600,13 +586,12 @@ if (needRole > role) {
                         }
                 }
 
-
                 /*
                  +------------------------------------------------+
                  |                   ON REACTION                  |
                  +------------------------------------------------+
                 */
-                async function onReaction() {
+                onReaction() {
                         const { onReaction } = GoatBot;
                         const Reaction = onReaction.get(messageID);
                         if (!Reaction)
@@ -792,3 +777,4 @@ if (needRole > role) {
                         typ
                 };
         };
+};
