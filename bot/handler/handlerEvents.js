@@ -240,29 +240,36 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
                                         break;
                                 }
                         }
-                        // ————————————— SET COMMAND NAME ————————————— //
-                        if (command)
-                                commandName = command.config.name;
-                        // ——————— FUNCTION REMOVE COMMAND NAME ———————— //
-                        function removeCommandNameFromBody(body_, prefix_, commandName_) {
-                                if (arguments.length) {
-                                        if (typeof body_ != "string")
-                                                throw new Error(`The first argument (body) must be a string, but got "${getType(body_)}"`);
-                                        if (typeof prefix_ != "string")
-                                                throw new Error(`The second argument (prefix) must be a string, but got "${getType(prefix_)}"`);
-                                        if (typeof commandName_ != "string")
-                                                throw new Error(`The third argument (commandName) must be a string, but got "${getType(commandName_)}"`);
+                        // ————————————— GET COMMAND ————————————— //
+const command = client.commands.get(commandName);
 
-                                        return body_.replace(new RegExp(`^${prefix_}(\\s+|)${commandName_}`, "i"), "").trim();
-                                }
-                                else {
-                                        return body.replace(new RegExp(`^${prefix}(\\s+|)${commandName}`, "i"), "").trim();
-                                }
-                        }
-                        // —————  CHECK BANNED OR ONLY ADMIN BOX  ————— //
-                        if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode))
-                                return;
-   // 𝗣𝗥𝗘𝗙𝗜𝗫 𝗕𝗟𝗢𝗖𝗞 𝗦𝗧𝗔𝗥𝗧 𝗙𝗥𝗢𝗠 𝗛𝗘𝗥𝗘 //                     if (!command) {
+// ————————————— SET COMMAND NAME ————————————— //
+if (command)
+    commandName = command.config.name;
+
+// ——————— FUNCTION REMOVE COMMAND NAME ———————— //
+function removeCommandNameFromBody(body_, prefix_, commandName_) {
+    if (arguments.length) {
+        if (typeof body_ != "string")
+            throw new Error(`The first argument (body) must be a string, but got "${getType(body_)}"`);
+        if (typeof prefix_ != "string")
+            throw new Error(`The second argument (prefix) must be a string, but got "${getType(prefix_)}"`);
+        if (typeof commandName_ != "string")
+            throw new Error(`The third argument (commandName) must be a string, but got "${getType(commandName_)}"`);
+
+        return body_.replace(new RegExp(`^${prefix_}(\\s+|)${commandName_}`, "i"), "").trim();
+    }
+    else {
+        return body.replace(new RegExp(`^${prefix}(\\s+|)${commandName}`, "i"), "").trim();
+    }
+}
+
+// —————  CHECK BANNED OR ONLY ADMIN BOX  ————— //
+if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode))
+    return;
+
+// 𝗣𝗥𝗘𝗙𝗜𝗫 𝗕𝗟𝗢𝗖𝗞 𝗦𝗧𝗔𝗥𝗧 𝗙𝗥𝗢𝗠 𝗛𝗘𝗥𝗘 //
+if (!command) {
     if (!hideNotiMessage.commandNotFound) {
         // Check if user typed just the prefix (#) with no command
         if (!commandName || commandName === '') {
