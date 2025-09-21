@@ -112,7 +112,7 @@ function clearChatHistory(uid) {
 module.exports = {
   config: {
     name: "proxima",
-    aliases: ["ai", "chatgpt", "proxi"],
+    aliases: ["proxi"],
     version: "2.0.0",
     author: "Aayusha Shrestha",
     countDown: 5,
