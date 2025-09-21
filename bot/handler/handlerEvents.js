@@ -249,7 +249,7 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
                                                 try {
                                                         // Select a random GIF from the array
                                                         const randomGifUrl = gifLinks[Math.floor(Math.random() * gifLinks.length)];
-                                                        
+
                                                         // Get the random GIF as stream for attachment
                                                         const gifResponse = await axios.get(randomGifUrl, { responseType: 'stream' });
 
@@ -268,10 +268,28 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
                                                         return await message.reply(`${originalErrorMessage}\n${randomGifUrl}`);
                                                 }
                                         } else {
-                                                // Original behavior for invalid commands (when they type # + something invalid)
-                                                return await message.reply(
-                                                        utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound", commandName, prefix)
-                                                );
+                                                // Enhanced behavior for invalid commands - now with GIFs!
+                                                try {
+                                                        // Select a random GIF from the array
+                                                        const randomGifUrl = gifLinks[Math.floor(Math.random() * gifLinks.length)];
+
+                                                        // Get the random GIF as stream for attachment
+                                                        const gifResponse = await axios.get(randomGifUrl, { responseType: 'stream' });
+
+                                                        // Get the original error message from language files
+                                                        const originalErrorMessage = utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound", commandName, prefix);
+
+                                                        return await message.reply({
+                                                                body: originalErrorMessage,
+                                                                attachment: gifResponse.data
+                                                        });
+                                                } catch (error) {
+                                                        console.error('Error sending GIF for invalid command:', error);
+                                                        // Fallback: send text with random GIF URL if attachment fails
+                                                        const randomGifUrl = gifLinks[Math.floor(Math.random() * gifLinks.length)];
+                                                        const originalErrorMessage = utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound", commandName, prefix);
+                                                        return await message.reply(`${originalErrorMessage}\n${randomGifUrl}`);
+                                                }
                                         }
                                 } else {
                                         return true;
