@@ -13,7 +13,7 @@ module.exports = {
   onStart: async function () {},
 
   onChat: async function ({ event, message, api, usersData }) {
-    if (event.body && event.body.toLowerCase().includes("proxima")) {
+    if (event.body && event.body.toLowerCase("proxima")) {
       try {
         const id = event.senderID;
         const userData = await usersData.get(id);
