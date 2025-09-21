@@ -591,7 +591,7 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
                  |                   ON REACTION                  |
                  +------------------------------------------------+
                 */
-                onReaction() {
+                async function onReaction() {
                         const { onReaction } = GoatBot;
                         const Reaction = onReaction.get(messageID);
                         if (!Reaction)
