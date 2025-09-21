@@ -784,4 +784,3 @@ const roleConfig = getRoleConfig(utils, command, isGroup, threadData, commandNam
                         typ
                 };
         };
-};
