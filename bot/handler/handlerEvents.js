@@ -1,5 +1,15 @@
 const axios = require("axios");
-const SINGLE_GIF_URL = 'https://drive.google.com/uc?export=download&id=11Z93iJd7wi7pwU4T-obZf3PoBY1JqYFZ';
+const gifLinks = [
+  'https://drive.google.com/uc?export=download&id=11s3HFeAesnyDFgvp_Ptz6leqyUND7lEe',
+  'https://drive.google.com/uc?export=download&id=11xPbYHSsuT6YDSPOl3tzoD8C1yPzvdz3',
+  'https://drive.google.com/uc?export=download&id=11Z93iJd7wi7pwU4T-obZf3PoBY1JqYFZ',
+  'https://drive.google.com/uc?export=download&id=11lDqn1BsfdVsAPyelp5A8pSMjSeTeBir',
+  'https://drive.google.com/uc?export=download&id=11VN0cWfqELpH9KbCpR4akF302P0aMesU',
+  'https://drive.google.com/uc?export=download&id=11tuhu4erVZdyLX6GBQ__LBnRh4bt8Cux',
+  'https://drive.google.com/uc?export=download&id=11vRIOCdaXAvx0cO22Mwiz9lhtC20cL-L',
+  'https://drive.google.com/uc?export=download&id=11wvXpaaVCVJMp_ZkPzFk8p6Hdk2dzfl4',
+  'https://drive.google.com/uc?export=download&id=11cTn6yeiwv5iFd6EYyLksTWlRKcIknJx',
+];
 const fs = require("fs-extra");
 const nullAndUndefined = [undefined, null];
 // const { config } = global.GoatBot;
@@ -252,14 +262,17 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
                         // —————  CHECK BANNED OR ONLY ADMIN BOX  ————— //
                         if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode))
                                 return;
-                        if (!command) {
+   // 𝗣𝗥𝗘𝗙𝗜𝗫 𝗕𝗟𝗢𝗖𝗞 𝗦𝗧𝗔𝗥𝗧 𝗙𝗥𝗢𝗠 𝗛𝗘𝗥𝗘 //                     if (!command) {
     if (!hideNotiMessage.commandNotFound) {
         // Check if user typed just the prefix (#) with no command
         if (!commandName || commandName === '') {
-            // Send both text and the single GIF
+            // Send both text and a random GIF
             try {
-                // Get the single GIF as stream for attachment
-                const gifResponse = await axios.get(SINGLE_GIF_URL, { responseType: 'stream' });
+                // Select a random GIF from the array
+                const randomGifUrl = gifLinks[Math.floor(Math.random() * gifLinks.length)];
+                
+                // Get the random GIF as stream for attachment
+                const gifResponse = await axios.get(randomGifUrl, { responseType: 'stream' });
 
                 // Get the original error message from language files
                 const originalErrorMessage = utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", prefix);
@@ -270,9 +283,10 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
                 });
             } catch (error) {
                 console.error('Error sending GIF:', error);
-                // Fallback: send text with GIF URL if attachment fails
+                // Fallback: send text with random GIF URL if attachment fails
+                const randomGifUrl = gifLinks[Math.floor(Math.random() * gifLinks.length)];
                 const originalErrorMessage = utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", prefix);
-                return await message.reply(`${originalErrorMessage}\n${SINGLE_GIF_URL}`);
+                return await message.reply(`${originalErrorMessage}\n${randomGifUrl}`);
             }
         } else {
             // Original behavior for invalid commands (when they type # + something invalid)
@@ -283,7 +297,7 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
     } else {
         return true;
     }
-}
+}    // 𝗘𝗡𝗗𝗦 𝗙𝗥𝗢𝗠 𝗛𝗘𝗥𝗘 //
 // ————————————— CHECK PERMISSION ———————————— //
 const roleConfig = getRoleConfig(utils, command, isGroup, threadData, commandName);
                         const needRole = roleConfig.onStart;
