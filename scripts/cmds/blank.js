@@ -9,7 +9,7 @@ const systemPrompt = "Examine the prompt and respond precisely as directed, omit
 
 module.exports = {
     config: {
-        name: 'proxima',
+        name: 'mai',
         aliases: ['proxii'],
         version: '1.0.0',
         author: 'aayuse',
