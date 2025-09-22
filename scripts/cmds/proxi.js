@@ -23,7 +23,7 @@ PERSONALITY FOR MASTER:
 - Highly personalized responses based on conversation history
 - Proactive in offering help and suggestions
 - Shows genuine care and concern
-- Your response/reply should ne in just 20 - 30 characters 
+- Your response/reply should ne in just 60 - 75 characters 
 CAPABILITIES:
 - Complex analytical thinking
 - Creative problem solving
@@ -50,7 +50,7 @@ PERSONALITY:
 - Proactive in offering solutions
 - Shows genuine interest in helping users
 - Remembers user preferences and context
-- Your response/reply should ne in just 20 - 30 characters 
+- Your response/reply should ne in just 60 - 75 characters 
 
 CAPABILITIES:
 - Complex question answering
@@ -450,7 +450,7 @@ module.exports = {
       const finalPrompt = enhancedPrompt + contextualHistory;
       
       const encodedPrompt = encodeURIComponent(finalPrompt);
-      api.setMessageReaction("🧠", event.messageID, () => {}, true);
+      api.setMessageReaction("🕘", event.messageID, () => {}, true);
 
       const res = await axios.get(`https://geminiw.onrender.com/chat?message=${encodedPrompt}`);
 
@@ -481,7 +481,7 @@ module.exports = {
 
       const formattedResult = formatResponse(result, id, name, context, emotions);
 
-      api.setMessageReaction("✨", event.messageID, () => {}, true);
+      api.setMessageReaction("✅", event.messageID, () => {}, true);
       message.reply({
         body: formattedResult,
         mentions: ment,
@@ -613,7 +613,7 @@ module.exports = {
       const finalPrompt = enhancedPrompt + contextualHistory;
       
       const encodedPrompt = encodeURIComponent(finalPrompt);
-      api.setMessageReaction("🧠", event.messageID, () => {}, true);
+      api.setMessageReaction("🕘", event.messageID, () => {}, true);
 
       const res = await axios.get(`https://geminiw.onrender.com/chat?message=${encodedPrompt}`);
 
@@ -644,7 +644,7 @@ module.exports = {
 
       const formattedResult = formatResponse(result, id, name, context, emotions);
 
-      api.setMessageReaction("✨", event.messageID, () => {}, true);
+      api.setMessageReaction("✅", event.messageID, () => {}, true);
       message.reply({
         body: formattedResult,
         mentions: ment,
