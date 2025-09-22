@@ -128,7 +128,7 @@ function isMaster(userID) {
 
 function loadUserPreferences(uid) {
     const prefsFile = path.join(userPreferencesDir, `prefs_${uid}.json`);
-    
+
     try {
         if (fs.existsSync(prefsFile)) {
             const data = fs.readFileSync(prefsFile, 'utf8');
@@ -150,7 +150,7 @@ function loadUserPreferences(uid) {
 
 function saveUserPreferences(uid, preferences) {
     const prefsFile = path.join(userPreferencesDir, `prefs_${uid}.json`);
-    
+
     try {
         if (!fs.existsSync(userPreferencesDir)) {
             fs.mkdirSync(userPreferencesDir, { recursive: true });
@@ -163,9 +163,9 @@ function saveUserPreferences(uid, preferences) {
 
 function updateUserPreferences(uid, prompt, context, emotions) {
     const preferences = loadUserPreferences(uid);
-    
+
     preferences.interaction_count = (preferences.interaction_count || 0) + 1;
-    
+
     if (context.context !== 'general') {
         if (!preferences.preferredTopics.includes(context.context)) {
             preferences.preferredTopics.push(context.context);
@@ -195,17 +195,17 @@ function enhancePrompt(originalPrompt, userID, chatHistory = []) {
     const context = intelligenceEnhancers.contextAnalysis(originalPrompt, chatHistory, preferences);
     const emotions = intelligenceEnhancers.emotionalAnalysis(originalPrompt);
     const complexity = intelligenceEnhancers.complexityAnalysis(originalPrompt);
-    
+
     updateUserPreferences(userID, originalPrompt, context, emotions);
 
     const systemPrompt = isMaster(userID) ? masterSystemPrompt : normalSystemPrompt;
-    
+
     let enhancedInstructions = '';
-    
+
     if (context.context !== 'general') {
         enhancedInstructions += `\nCONTEXT: This is a ${context.context} query. Provide specialized, expert-level assistance in this domain.`;
     }
-    
+
     if (emotions.includes('sad') || emotions.includes('anxious')) {
         enhancedInstructions += '\nEMOTIONAL NOTE: User seems distressed. Be extra empathetic, supportive, and caring in your response.';
     } else if (emotions.includes('happy') || emotions.includes('grateful')) {
@@ -213,17 +213,17 @@ function enhancePrompt(originalPrompt, userID, chatHistory = []) {
     } else if (emotions.includes('confused')) {
         enhancedInstructions += '\nEMOTIONAL NOTE: User seems confused. Be extra clear, patient, and provide step-by-step explanations.';
     }
-    
+
     if (complexity === 'complex') {
         enhancedInstructions += '\nCOMPLEXITY: This is a complex query. Provide a thorough, well-structured, and detailed response.';
     } else if (complexity === 'simple') {
         enhancedInstructions += '\nCOMPLEXITY: This is a simple query. Keep your response concise and direct.';
     }
-    
+
     if (preferences.preferredTopics && preferences.preferredTopics.length > 0) {
         enhancedInstructions += `\nUSER INTERESTS: User has shown interest in: ${preferences.preferredTopics.join(', ')}. Consider relating your response to these interests when appropriate.`;
     }
-    
+
     if (preferences.interaction_count > 10) {
         enhancedInstructions += '\nRELATIONSHIP: You have an established relationship with this user. Be more personalized and reference your ongoing conversation.';
     }
@@ -251,18 +251,18 @@ function enhancePrompt(originalPrompt, userID, chatHistory = []) {
 
 function formatResponse(response, userID, userName, context, emotions) {
     let formattedResponse = response;
-    
+
     if (isMaster(userID)) {
         if (!response.toLowerCase().includes('master')) {
             formattedResponse = `Master ${userName}, ${response}`;
         }
-        
+
         if (emotions.includes('sad') || emotions.includes('anxious')) {
             formattedResponse += "\n\nMaster, I'm here for you. Please let me know if you need anything else.";
         }
     } else {
         formattedResponse = `${userName}, ${response}`;
-        
+
         if (emotions.includes('confused')) {
             formattedResponse += "\n\nI hope this helps clarify things! Feel free to ask if you need further explanation.";
         } else if (emotions.includes('grateful')) {
@@ -330,14 +330,14 @@ function saveChatHistory(uid, chatHistory) {
         }
 
         const trimmedHistory = chatHistory.slice(-50);
-        
+
         const enrichedHistory = trimmedHistory.map(msg => ({
             ...msg,
             context: msg.context || 'general',
             emotions: msg.emotions || ['neutral'],
             complexity: msg.complexity || 'moderate'
         }));
-        
+
         fs.writeFileSync(chatHistoryFile, JSON.stringify(enrichedHistory, null, 2));
     } catch (error) {
         console.error(`Error saving chat history for ${uid}:`, error);
@@ -358,14 +358,14 @@ function clearChatHistory(uid) {
 
 function buildIntelligentContext(chatHistory, currentPrompt, userID) {
     if (chatHistory.length === 0) return '';
-    
+
     const recentHistory = chatHistory.slice(-8);
     const contextSummary = recentHistory.map((msg, index) => {
         const contextInfo = msg.context ? `[${msg.context}]` : '';
         const emotionInfo = msg.emotions && msg.emotions[0] !== 'neutral' ? `[${msg.emotions[0]}]` : '';
         return `${msg.role}${contextInfo}${emotionInfo}: ${msg.content}`;
     }).join('\n');
-    
+
     return `\nRECENT CONVERSATION CONTEXT:\n${contextSummary}\n`;
 }
 
@@ -448,11 +448,11 @@ module.exports = {
       const contextualHistory = buildIntelligentContext(chatHistory, prompt, id);
       const enhancedPrompt = enhancePrompt(prompt, id, chatHistory);
       const finalPrompt = enhancedPrompt + contextualHistory;
-      
+
       const encodedPrompt = encodeURIComponent(finalPrompt);
       api.setMessageReaction("🕘", event.messageID, () => {}, true);
 
-      const res = await axios.get(`https://geminiw.onrender.com/chat?message=${encodedPrompt}`);
+      const res = await axios.get(`https://proximav2.onrender.com/chat?message=${encodedPrompt}`);
 
       let result;
       if (typeof res.data === 'string') {
@@ -611,11 +611,11 @@ module.exports = {
       const contextualHistory = buildIntelligentContext(chatHistory, prompt, id);
       const enhancedPrompt = enhancePrompt(prompt, id, chatHistory);
       const finalPrompt = enhancedPrompt + contextualHistory;
-      
+
       const encodedPrompt = encodeURIComponent(finalPrompt);
       api.setMessageReaction("🕘", event.messageID, () => {}, true);
 
-      const res = await axios.get(`https://geminiw.onrender.com/chat?message=${encodedPrompt}`);
+      const res = await axios.get(`https://proximav2.onrender.com/chat?message=${encodedPrompt}`);
 
       let result;
       if (typeof res.data === 'string') {
