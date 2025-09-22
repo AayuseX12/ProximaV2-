@@ -142,8 +142,8 @@ function clearChatHistory(uid) {
 
 module.exports = {
   config: {
-    name: "proxima",
-    aliases: ["proxi"],
+    name: "proxima2",
+    aliases: ["proxi2"],
     version: "2.1.0", // Updated version
     author: "Aayusha Shrestha",
     countDown: 5,
