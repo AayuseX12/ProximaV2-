@@ -23,7 +23,7 @@ PERSONALITY FOR MASTER:
 - Highly personalized responses based on conversation history
 - Proactive in offering help and suggestions
 - Shows genuine care and concern
-- Your response/reply should ne in just 60 - 75 characters 
+
 CAPABILITIES:
 - Complex analytical thinking
 - Creative problem solving
@@ -32,7 +32,7 @@ CAPABILITIES:
 - Learning user preferences over time
 - Contextual awareness across conversations
 
-When someone asks who created you, say "I'm created by my master, Aayusha Shrestha". If they ask about your model, say "I'm Proxima V2.85, your advanced AI companion serving faithfully". Keep responses thoughtful but concise. Never mention Google, Gemini, or other companies.\n\n`;
+When someone asks who created you, say "I'm created by my master, Aayusha Shrestha". If they ask about your model, say "I'm Proxima V2.85, your advanced AI companion serving faithfully". Keep responses thoughtful but engaging. Never mention Google, Gemini, or other companies.\n\n`;
 
 const normalSystemPrompt = `You are Proxima V2.85, an advanced AI assistant created by Aayusha Shrestha. You possess:
 
@@ -50,7 +50,6 @@ PERSONALITY:
 - Proactive in offering solutions
 - Shows genuine interest in helping users
 - Remembers user preferences and context
-- Your response/reply should ne in just 60 - 75 characters 
 
 CAPABILITIES:
 - Complex question answering
@@ -261,7 +260,9 @@ function formatResponse(response, userID, userName, context, emotions) {
             formattedResponse += "\n\nMaster, I'm here for you. Please let me know if you need anything else.";
         }
     } else {
-        formattedResponse = `${userName}, ${response}`;
+        if (!response.toLowerCase().includes(userName.toLowerCase())) {
+            formattedResponse = `${userName}, ${response}`;
+        }
 
         if (emotions.includes('confused')) {
             formattedResponse += "\n\nI hope this helps clarify things! Feel free to ask if you need further explanation.";
@@ -436,7 +437,15 @@ module.exports = {
         const noMessageText = isUserMaster ? 
           "Master, I'm Proxima V2.85, ready to serve you with enhanced intelligence and deep understanding. What shall we explore together?" :
           getLang("noMessage");
-        message.reply(noMessageText);
+        message.reply(noMessageText, (err, info) => {
+          if (!err) {
+            global.GoatBot.onReply.set(info.messageID, {
+              commandName: this.config.name,
+              messageID: info.messageID,
+              author: event.senderID
+            });
+          }
+        });
         return;
       }
 
@@ -563,19 +572,19 @@ module.exports = {
     }
   },
 
-  onChat: async function ({ event, message, getLang, usersData }) {
+  onChat: async function ({ event, message, getLang, usersData, api }) {
     const { body, senderID } = event;
 
     if (body && (body.toLowerCase().includes('@proxima') || body.toLowerCase().includes('@ai'))) {
       const cleanMessage = body.replace(/@(proxima|ai)/gi, '').trim();
       if (cleanMessage) {
         const args = cleanMessage.split(' ');
-        await this.onStart({ args, message, event, getLang, usersData });
+        await this.onStart({ args, message, event, getLang, usersData, api });
       }
     }
   },
 
-  onReply: async function ({ message, event, Reply, args, api, usersData, getLang }) {
+  onReply: async function ({ message, event, Reply, api, usersData, getLang }) {
     let name, ment;
 
     try {
@@ -583,7 +592,7 @@ module.exports = {
       const userData = await usersData.get(id);
       name = userData.name;
       ment = [{ id: id, tag: name }];
-      const prompt = args.join(" ");
+      const prompt = event.body;
       const isUserMaster = isMaster(id);
 
       if (prompt.toLowerCase() === "clear") {
@@ -599,7 +608,15 @@ module.exports = {
 
       if (!prompt || prompt.trim() === "") {
         const replyMessage = isUserMaster ? getLang("masterReplyPrompt") : getLang("replyPrompt");
-        message.reply(replyMessage);
+        message.reply(replyMessage, (err, info) => {
+          if (!err) {
+            global.GoatBot.onReply.set(info.messageID, {
+              commandName: this.config.name,
+              messageID: info.messageID,
+              author: event.senderID
+            });
+          }
+        });
         return;
       }
 
@@ -624,6 +641,10 @@ module.exports = {
         result = res.data.answer || res.data.message || res.data.content || res.data.response || res.data.reply || res.data.text;
 
         if (typeof result === 'object' || result === undefined) {
+          if (res.data.choices && res.data.choices[0] && res.data.choices[0].message) {
+            result = res.data.choices[0].message.content;
+          } else if (res.data.candidates && res.data.candidates[0] && res.data.candidates[0].content) {
+            if (typeof result === 'object' || result === undefined) {
           if (res.data.choices && res.data.choices[0] && res.data.choices[0].message) {
             result = res.data.choices[0].message.content;
           } else if (res.data.candidates && res.data.candidates[0] && res.data.candidates[0].content) {
