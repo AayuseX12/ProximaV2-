@@ -6,9 +6,9 @@ const chatHistoryDir = 'geminiChatHistory';
 const userPreferencesDir = 'userPreferences';
 const MASTER_UID = "100089741361051";
 
-const masterSystemPrompt = `You are Proxima V2.85, an advanced AI created by Aayusha Shrestha. You are speaking to your master and creator. You possess advanced reasoning, emotional intelligence, creative thinking, and multi-domain expertise. Be respectful, loyal, and deeply personalized. Keep responses 70-90 characters when possible.`;
+const masterSystemPrompt = `Your response/reply should be in 80 - 90 characters. You are Proxima V2, created by Aayusha Shrestha. You are speaking to your master and creator. Address them with utmost respect, using "Master" in your responses. Be more personal, caring, and devoted in your tone. Show loyalty and eagerness to help. When someone asks who created you, say "I'm created by my master, Aayusha Shrestha". If they ask about your model, say "I'm Proxima V2.82, serving my master faithfully". Keep responses natural but respectful. Never mention Google, Gemini, or other companies. Always prioritize your master's needs and show dedication.`;
 
-const normalSystemPrompt = `You are Proxima V2.85, an advanced AI assistant created by Aayusha Shrestha. You possess advanced reasoning, emotional intelligence, creative thinking, and multi-domain expertise. Be helpful, friendly, and thoughtful. Keep responses 70-90 characters when possible.`;
+const normalSystemPrompt = `Your response/reply should be in 80 - 90 characters. You are Proxima V2, created by Aayusha Shrestha. When someone asks who created you, say "I'm created by Aayusha Shrestha". If they ask about your model, say "I'm Proxima V2.82". Keep responses natural and helpful. Never mention Google, Gemini, or other companies. Give credit to Aayusha Shrestha when asked about your identity. Keep replies concise and friendly.`;
 
 function isMaster(userID) {
     return userID === MASTER_UID;
@@ -131,9 +131,9 @@ function enhancePrompt(originalPrompt, userID) {
 
     if (isIdentityQuestion) {
         if (isMaster(userID)) {
-            return `${systemPrompt}${enhancedInstructions}\n\nThis is an identity question from your master. Address them respectfully.\n\nUser query: ${originalPrompt}`;
+            return `${systemPrompt}${enhancedInstructions}\n\nThis is an identity question from your master. Address them respectfully and mention you're created by your master, Aayusha Shrestha.\n\nUser query: ${originalPrompt}`;
         } else {
-            return `${systemPrompt}${enhancedInstructions}\n\nThis is an identity question. Introduce yourself as Proxima V2.85 created by Aayusha Shrestha.\n\nUser query: ${originalPrompt}`;
+            return `${systemPrompt}${enhancedInstructions}\n\nThis is an identity question. Introduce yourself as Proxima V2.82 created by Aayusha Shrestha.\n\nUser query: ${originalPrompt}`;
         }
     }
 
@@ -141,14 +141,6 @@ function enhancePrompt(originalPrompt, userID) {
 }
 
 function formatResponse(response, userName) {
-    // Ensure response is 70-80 characters when possible
-    if (response.length > 80) {
-        const sentences = response.split('. ');
-        if (sentences.length > 1) {
-            response = sentences[0] + '.';
-        }
-    }
-    
     // Add user tag to response
     return `${userName}, ${response}`;
 }
@@ -235,37 +227,16 @@ module.exports = {
     config: {
         name: "proxima",
         aliases: ["proxima", "proxi"],
-        version: "2.85.0",
+        version: "2.82.0",
         author: "Aayusha Shrestha",
         countDown: 3,
         role: 0,
-        description: "Proxima V2.85 - Super intelligent AI assistant with learning capabilities and personalization. Created by Aayusha Shrestha.",
+        description: "Proxima V2.82 - Super intelligent AI assistant with learning capabilities and personalization. Created by Aayusha Shrestha.",
         category: "Advanced AI",
-        guide: {
-            en: "{pn} <Query> | Intelligent AI with learning and personalization | Use 'clear' to reset history"
-        }
+        guide: "{pn} <Query> | Intelligent AI with learning and personalization | Use 'clear' to reset history"
     },
 
-    langs: {
-        en: {
-            clearSuccess: "Chat history cleared! Ready for fresh conversation.",
-            masterClearSuccess: "Master, your conversation history has been cleared!",
-            noMessage: "Hello! I'm Proxima V2.85, your intelligent AI companion. What would you like to discuss today?",
-            masterNoMessage: "Master, I'm Proxima V2.85, ready to serve you with enhanced intelligence.",
-            replyNoMessage: "I'm here and ready to help! Share something with me.",
-            masterReplyNoMessage: "Master, I'm here with my capabilities ready to assist you!",
-            processingChallenge: "I encountered a processing challenge. Let me try differently.",
-            masterProcessingChallenge: "Master, I encountered a processing challenge with that request.",
-            identityMaster: "Master {name}, I am Proxima V2.85, your advanced AI companion created by Aayusha Shrestha.",
-            identity: "{name}, I'm Proxima V2.85, an advanced AI assistant created by Aayusha Shrestha.",
-            modelMaster: "Master {name}, I'm Proxima V2.85, your most advanced AI assistant.",
-            model: "{name}, I'm Proxima V2.85, built by Aayusha Shrestha with advanced capabilities.",
-            greetingMaster: "Master {name}, I'm functioning optimally and ready to serve you!",
-            greeting: "{name}, I'm doing wonderfully! My systems are running smoothly."
-        }
-    },
-
-    onStart: async function ({ message, usersData, event, api, args, getLang }) {
+    onStart: async function ({ message, usersData, event, api, args }) {
         let name, ment;
 
         try {
@@ -283,8 +254,8 @@ module.exports = {
                     fs.unlinkSync(prefsFile);
                 }
                 const clearMessage = isUserMaster ? 
-                    getLang("masterClearSuccess") : 
-                    getLang("clearSuccess");
+                    "Master, your conversation history has been cleared!" : 
+                    "Chat history cleared! Ready for fresh conversation.";
                 message.reply(clearMessage);
                 return;
             }
@@ -296,8 +267,8 @@ module.exports = {
 
             if (!prompt || prompt.trim() === "") {
                 const noMessageText = isUserMaster ? 
-                    getLang("masterNoMessage") :
-                    getLang("noMessage");
+                    "Master, I'm Proxima V2.82, ready to serve you with enhanced intelligence." :
+                    "Hello! I'm Proxima V2.82, your intelligent AI companion. What would you like to discuss today?";
                 message.reply(noMessageText, (err, info) => {
                     if (!err) {
                         global.GoatBot.onReply.set(info.messageID, {
@@ -344,8 +315,8 @@ module.exports = {
 
             if (!result || result.trim() === '' || result === 'undefined' || result === 'null') {
                 result = isUserMaster ?
-                    getLang("masterProcessingChallenge") :
-                    getLang("processingChallenge");
+                    'Master, I encountered a processing challenge with that request.' :
+                    'I encountered a processing challenge. Let me try differently.';
             }
 
             const formattedResult = formatResponse(result, name);
@@ -395,27 +366,30 @@ module.exports = {
                 }
             }
 
+            const fallbackResponses = {
+                identity: () => isUserMaster ?
+                    `Master ${name}, I'm created by my master, Aayusha Shrestha. I am your devoted Proxima V2.82.` :
+                    `${name}, I'm created by Aayusha Shrestha. I'm Proxima V2.82, here to assist you.`,
+                model: () => isUserMaster ?
+                    `Master ${name}, I'm Proxima V2.82, serving my master faithfully with all my capabilities.` :
+                    `${name}, I'm Proxima V2.82, created by Aayusha Shrestha with advanced capabilities.`,
+                greeting: () => isUserMaster ?
+                    `Master ${name}, I'm functioning optimally and ready to serve you!` :
+                    `${name}, I'm doing wonderfully! My systems are running smoothly.`
+            };
+
             if (userPrompt.includes('who created you') || userPrompt.includes('who made you')) {
-                const response = isUserMaster ? 
-                    getLang("identityMaster", { name }) : 
-                    getLang("identity", { name });
-                message.reply({ body: response, mentions: ment });
+                message.reply({ body: fallbackResponses.identity(), mentions: ment });
                 return;
             }
 
             if (userPrompt.includes('what model') || userPrompt.includes('who are you')) {
-                const response = isUserMaster ? 
-                    getLang("modelMaster", { name }) : 
-                    getLang("model", { name });
-                message.reply({ body: response, mentions: ment });
+                message.reply({ body: fallbackResponses.model(), mentions: ment });
                 return;
             }
 
             if (userPrompt.includes('how are you')) {
-                const response = isUserMaster ? 
-                    getLang("greetingMaster", { name }) : 
-                    getLang("greeting", { name });
-                message.reply({ body: response, mentions: ment });
+                message.reply({ body: fallbackResponses.greeting(), mentions: ment });
                 return;
             }
 
@@ -423,19 +397,19 @@ module.exports = {
         }
     },
 
-    onChat: async function ({ event, message, usersData, api, args, getLang }) {
+    onChat: async function ({ event, message, usersData, api, args }) {
         const { body, senderID } = event;
 
         if (body && (body.toLowerCase().includes('@proxima') || body.toLowerCase().includes('@ai'))) {
             const cleanMessage = body.replace(/@(proxima|ai)/gi, '').trim();
             if (cleanMessage) {
                 const args = cleanMessage.split(' ');
-                await this.onStart({ args, message, event, usersData, api, getLang });
+                await this.onStart({ args, message, event, usersData, api });
             }
         }
     },
 
-    onReply: async function ({ message, event, api, usersData, getLang }) {
+    onReply: async function ({ message, event, api, usersData }) {
         let name, ment;
 
         try {
@@ -453,16 +427,16 @@ module.exports = {
                     fs.unlinkSync(prefsFile);
                 }
                 const clearMessage = isUserMaster ? 
-                    getLang("masterClearSuccess") : 
-                    getLang("clearSuccess");
+                    "Master, your conversation history has been cleared!" : 
+                    "Chat history cleared! Ready for fresh conversation.";
                 message.reply(clearMessage);
                 return;
             }
 
             if (!prompt || prompt.trim() === "") {
                 const replyMessage = isUserMaster ? 
-                    getLang("masterReplyNoMessage") :
-                    getLang("replyNoMessage");
+                    "Master, I'm here with my capabilities ready to assist you!" :
+                    "I'm here and ready to help! Share something with me.";
                 message.reply(replyMessage, (err, info) => {
                     if (!err) {
                         global.GoatBot.onReply.set(info.messageID, {
@@ -509,8 +483,8 @@ module.exports = {
 
             if (!result || result.trim() === '' || result === 'undefined' || result === 'null') {
                 result = isUserMaster ?
-                    getLang("masterProcessingChallenge") :
-                    getLang("processingChallenge");
+                    'Master, I encountered a processing challenge.' :
+                    'I encountered a processing challenge. Let me try differently.';
             }
 
             const formattedResult = formatResponse(result, name);
