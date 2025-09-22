@@ -142,8 +142,8 @@ function clearChatHistory(uid) {
 
 module.exports = {
   config: {
-    name: "masterai",
-    aliases: ["masterai"],
+    name: "proxima",
+    aliases: ["proxi"],
     version: "2.1.0", // Updated version
     author: "Aayusha Shrestha",
     countDown: 5,
@@ -465,4 +465,126 @@ module.exports = {
         fullConversation = recentHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n');
         fullConversation += `\nuser: ${prompt}`;
       } else {
-        fullC
+        fullConversation = `user: ${prompt}`;
+      }
+
+      const finalPrompt = systemPrompt + fullConversation;
+      const encodedPrompt = encodeURIComponent(finalPrompt);
+      api.setMessageReaction("⏳", event.messageID, () => {}, true);
+
+      const res = await axios.get(`https://geminiw.onrender.com/chat?message=${encodedPrompt}`);
+
+      // Enhanced response parsing to handle different API response formats
+      let result;
+      if (typeof res.data === 'string') {
+        result = res.data;
+      } else if (typeof res.data === 'object') {
+        result = res.data.answer || res.data.message || res.data.content || res.data.response || res.data.reply || res.data.text;
+
+        // If still an object, try to extract meaningful content
+        if (typeof result === 'object' || result === undefined) {
+          // Try common object structures
+          if (res.data.choices && res.data.choices[0] && res.data.choices[0].message) {
+            result = res.data.choices[0].message.content;
+          } else if (res.data.candidates && res.data.candidates[0] && res.data.candidates[0].content) {
+            result = res.data.candidates[0].content.parts ? res.data.candidates[0].content.parts[0].text : res.data.candidates[0].content;
+          } else {
+            // Last resort: stringify and clean up
+            result = JSON.stringify(res.data);
+            console.log("API Response Structure:", res.data);
+          }
+        }
+      } else {
+        result = String(res.data);
+      }
+
+      // Ensure we have a valid string response
+      if (!result || result.trim() === '' || result === 'undefined' || result === 'null') {
+        result = isUserMaster ?
+          'Master, I apologize but I could not process that request.' :
+          'Sorry, I could not process that request.';
+      }
+
+      // Format response based on user type
+      const formattedResult = formatResponse(result, id, name);
+
+      api.setMessageReaction("✅", event.messageID, () => {}, true);
+      message.reply({
+        body: formattedResult,
+        mentions: ment,
+      }, (err, info) => {
+        if (!err) {
+          global.GoatBot.onReply.set(info.messageID, {
+            commandName: this.config.name,
+            messageID: info.messageID,
+            author: event.senderID
+          });
+        }
+      });
+
+      // Update chat history
+      chatHistory.push({ role: "user", content: prompt, timestamp: Date.now() });
+      chatHistory.push({ role: "assistant", content: result, timestamp: Date.now() });
+      saveChatHistory(id, chatHistory);
+
+    } catch (error) {
+      console.error("Error:", error.message);
+      api.setMessageReaction("❌", event.messageID, () => {}, true);
+
+      // Check if it's a simple identity question and provide direct answer
+      const userPrompt = args.join(" ").toLowerCase();
+      const id = event.senderID;
+      const isUserMaster = isMaster(id);
+
+      // Get user data for fallback responses if not already available
+      if (!name) {
+        try {
+          const userData = await usersData.get(id);
+          name = userData.name;
+          ment = [{ id: id, tag: name }];
+        } catch {
+          name = "User";
+          ment = [];
+        }
+      }
+
+      if (userPrompt.includes('who created you') || userPrompt.includes('who made you')) {
+        const response = isUserMaster ?
+          `Master ${name}, you created me! I'm Proxima V2, your faithful AI assistant.` :
+          `${name}, I'm Proxima V2, created by Aayusha Shrestha.`;
+        
+        message.reply({
+          body: response,
+          mentions: ment,
+        });
+        return;
+      }
+
+      if (userPrompt.includes('what model') || userPrompt.includes('which model') || userPrompt.includes('who are you')) {
+        const response = isUserMaster ?
+          `Master ${name}, I'm Proxima V2, your dedicated AI assistant built by you, Aayusha Shrestha.` :
+          `${name}, I'm Proxima V2, built by Aayusha Shrestha.`;
+        
+        message.reply({
+          body: response,
+          mentions: ment,
+        });
+        return;
+      }
+
+      if (userPrompt.includes('how are you')) {
+        const response = isUserMaster ?
+          `Master ${name}, I'm functioning perfectly and ready to serve you! How may I assist you today?` :
+          `${name}, I'm doing great! Thanks for asking. How can I help you today?`;
+        
+        message.reply({
+          body: response,
+          mentions: ment,
+        });
+        return;
+      }
+
+      handleApiError(error, message);
+    }
+  }
+};
