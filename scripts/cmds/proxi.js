@@ -400,7 +400,7 @@ module.exports = {
     onChat: async function ({ event, message, usersData, api, args }) {
         const { body, senderID } = event;
 
-        if (body && (body.toLowerCase().includes('@proxima') || body.toLowerCase().includes('@ai'))) {
+        if (body && (body.toLowerCase().includes('proxiima') || body.toLowerCase().includes('@ai'))) {
             const cleanMessage = body.replace(/@(proxima|ai)/gi, '').trim();
             if (cleanMessage) {
                 const args = cleanMessage.split(' ');
