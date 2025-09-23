@@ -3,7 +3,7 @@
 
 module.exports = {
   config: {
-    name: "kda",
+    name: "porn",
     aliases: ["kanda2.0"],
     version: "2.0",
     author: "kshitiz",
@@ -21,7 +21,7 @@ module.exports = {
     const senderID = event.senderID;
 
     const loadingMessage = await message.reply({
-      body: "kanda aaudaixa... ekxin parkhi muji! 🤡",
+      body: "🥵 | ‘Loading’",
     });
 
     const link = [
@@ -155,7 +155,7 @@ module.exports = {
 
     if (senderID !== null) {
       message.reply({
-        body: 'xolera bas aba 🤡',
+        body: '🥵 | HERE IT IS.!',
         attachment: await global.utils.getStreamFromURL(randomVideo),
       });
 
