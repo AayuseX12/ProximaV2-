@@ -8,7 +8,7 @@ module.exports = {
         version: "1.5",
         author: "Aayusha",
         countDown: 5,
-        role: 0,
+        role: 2,
         description: "Change the command prefix for your chat or the entire bot system (admin only) and add a music prefix with song link support",
         category: "config",
         guide: {
