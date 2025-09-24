@@ -20,6 +20,6 @@ module.exports = {
   },
   onStart: async function ({ args, message, api }) {
     api.changeBio(args.join(" "));
-    message.reply("change bot bio to:" + args.join(" "));
+    message.reply("👨‍🔬 |Changed Successfully"
   },
 };
