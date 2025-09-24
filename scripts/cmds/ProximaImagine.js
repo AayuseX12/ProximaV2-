@@ -3,7 +3,7 @@ const axios = require('axios');
 
 module.exports = {
   config: {
-    name: "",
+    name: "proximaimagine",
     version: "1.0.0",
     author: "Aayusha Shrestha",
     countDown: 2,
