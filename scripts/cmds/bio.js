@@ -6,20 +6,40 @@ module.exports = {
     countDown: 5,
     role: 2,
     shortDescription: {
-      vi: " ",
-      en: "change bot bio ",
+      vi: "Thay đổi tiểu sử bot",
+      en: "Change bot biography",
     },
     longDescription: {
-      vi: " ",
-      en: "change bot bio ",
+      vi: "Thay đổi tiểu sử của bot với văn bản được cung cấp",
+      en: "Change the bot's biography with the provided text",
     },
     category: "owner",
     guide: {
-      en: "{pn} (text)",
+      vi: "{pn} <văn bản tiểu sử mới>",
+      en: "{pn} <new biography text>",
     },
   },
   onStart: async function ({ args, message, api }) {
-    api.changeBio(args.join(" "));
-    message.reply("👨‍🔬 |Changed Successfully"
+    try {
+      // Check if bio text is provided
+      if (!args || args.length === 0) {
+        return message.reply("❌ | Please provide text for the new biography.");
+      }
+
+      const newBio = args.join(" ");
+      
+      // Check bio length (most platforms have limits)
+      if (newBio.length > 101) {
+        return message.reply("❌ | Biography too long. Please keep it under 101 characters.");
+      }
+
+      // Change the bio
+      await api.changeBio(newBio);
+      message.reply(`👨‍🔬 | Biography changed successfully!\nNew bio: "${newBio}"`);
+      
+    } catch (error) {
+      console.error("Error changing bio:", error);
+      message.reply("❌ | Failed to change biography. Please try again later.");
+    }
   },
 };
