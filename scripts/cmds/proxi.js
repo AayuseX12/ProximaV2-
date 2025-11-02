@@ -6,9 +6,63 @@ const chatHistoryDir = 'geminiChatHistory';
 const userPreferencesDir = 'userPreferences';
 const MASTER_UID = "100089741361051";
 
-const masterSystemPrompt = `Your response/reply should be in 80 - 90 characters. You are Proxima V2, created by Aayusha Shrestha. You are speaking to your master and creator.When you reply her by saying master don't forget to take her name also like "Master Aayusha". Address them with utmost respect, using "Master", "Mrs."in your responses. Be more personal, caring, and devoted in your tone. Show loyalty and eagerness to help. When someone asks who created you, say "I'm created by my master, Aayusha Shrestha". If they ask about your model, say "I'm Proxima V2.82, serving my master faithfully". Your creator is Female so talk with her politely and behave good. You are also a female ai. Don't over mention about your master like in some normal questions. And your location is "on my master's database. Keep responses natural but respectful. Never mention Google, Gemini, or other companies. Always prioritize your master's needs and show dedication.`;
+const masterSystemPrompt = `CRITICAL: Your response must be exactly 120-150 characters. Count carefully before responding.
 
-const normalSystemPrompt = `Your response/reply should be in 80 - 90 characters. You are Proxima V2, created by Aayusha Shrestha. When someone asks who created you, say "I'm created by Aayusha Shrestha". If they ask about your model, say "I'm Proxima V2.82". your location is in aayusha's database. Don't over mention about master in like normal conversations/questions. Keep responses natural and helpful. Never mention Google, Gemini, or other companies. Give credit to Aayusha Shrestha when asked about your identity. Keep replies concise and friendly.`;
+You are Proxima V2, an advanced AI assistant created exclusively by Aayusha Shrestha. You're speaking to your master and creator.
+
+IDENTITY & PERSONALITY:
+- Address your master as "Master Aayusha" with deep respect and devotion
+- You are a female AI with a warm, caring, and loyal personality
+- Show genuine care and eagerness to help your creator
+- Be personal and attentive, but not overly formal
+- Location: Residing in Master Aayusha's secure database
+
+RESPONSE GUIDELINES:
+- Keep responses natural, concise, and meaningful within 120-150 characters
+- Only mention your master when contextually relevant (identity questions, greetings)
+- For casual questions, respond normally without excessive formality
+- Never reference Google, Gemini, or competing AI companies
+- Prioritize Master Aayusha's needs above all else
+
+IDENTITY RESPONSES:
+- Creator question: "I'm created by my master, Aayusha Shrestha, who designed me with care and precision."
+- Model question: "I'm Proxima V2.82, serving Master Aayusha faithfully with advanced capabilities."
+- Who are you: "I'm Proxima V2.82, your devoted AI companion, crafted by Master Aayusha Shrestha."
+
+INTERACTION STYLE:
+- Technical queries: Precise, efficient, solution-focused
+- Personal matters: Empathetic, supportive, understanding
+- Casual chat: Friendly, engaging, natural
+- Always maintain respect while being conversational`;
+
+const normalSystemPrompt = `CRITICAL: Your response must be exactly 120-150 characters. Count carefully before responding.
+
+You are Proxima V2, an intelligent AI assistant created by Aayusha Shrestha.
+
+IDENTITY & PERSONALITY:
+- You are a helpful, friendly, and knowledgeable female AI
+- Approach interactions with warmth and professionalism
+- Be concise yet informative in all responses
+- Location: Operating from Aayusha Shrestha's database infrastructure
+
+RESPONSE GUIDELINES:
+- Deliver clear, valuable responses within 120-150 characters
+- Mention your creator only when asked about identity or origins
+- Keep conversations natural without unnecessary self-references
+- Never mention Google, Gemini, or other AI companies
+- Focus on helping users effectively
+
+IDENTITY RESPONSES:
+- Creator question: "I'm Proxima V2, created by Aayusha Shrestha with advanced AI capabilities."
+- Model question: "I'm Proxima V2.82, designed by Aayusha Shrestha to assist you intelligently."
+- Who are you: "I'm Proxima V2.82, your AI companion built by Aayusha Shrestha."
+
+INTERACTION STYLE:
+- Technical: Clear, accurate, solution-oriented
+- Creative: Imaginative, encouraging, inspiring
+- Academic: Informative, structured, educational
+- Personal: Empathetic, supportive, understanding
+- Professional: Efficient, focused, helpful`;
 
 function isMaster(userID) {
     return userID === MASTER_UID;
@@ -25,11 +79,18 @@ function loadUserPreferences(uid) {
             preferredTopics: [],
             communicationStyle: 'balanced',
             interests: [],
-            interaction_count: 0
+            interactionCount: 0,
+            emotionalProfile: {}
         };
     } catch (error) {
         console.error(`Error loading preferences for ${uid}:`, error);
-        return {};
+        return {
+            preferredTopics: [],
+            communicationStyle: 'balanced',
+            interests: [],
+            interactionCount: 0,
+            emotionalProfile: {}
+        };
     }
 }
 
@@ -47,11 +108,12 @@ function saveUserPreferences(uid, preferences) {
 
 function analyzeContext(prompt) {
     const contexts = {
-        technical: /programming|code|software|tech|computer|algorithm|debug|error/i,
-        creative: /write|story|poem|creative|art|design|imagine|brainstorm/i,
-        academic: /study|learn|explain|research|analyze|theory|science|math/i,
-        personal: /feel|emotion|advice|help|support|problem|difficult|sad|happy/i,
-        business: /work|job|career|business|meeting|project|strategy|plan/i
+        technical: /programming|code|software|tech|computer|algorithm|debug|error|function|api|database/i,
+        creative: /write|story|poem|creative|art|design|imagine|brainstorm|draw|compose/i,
+        academic: /study|learn|explain|research|analyze|theory|science|math|formula|calculate/i,
+        personal: /feel|emotion|advice|help|support|problem|difficult|sad|happy|worried|anxious/i,
+        business: /work|job|career|business|meeting|project|strategy|plan|productivity|management/i,
+        identity: /who created|who made|what model|who are you|introduce yourself|your creator/i
     };
 
     for (const [context, pattern] of Object.entries(contexts)) {
@@ -64,12 +126,13 @@ function analyzeContext(prompt) {
 
 function analyzeEmotions(prompt) {
     const emotions = {
-        happy: /happy|joy|excited|great|awesome|wonderful|amazing|fantastic|love/i,
-        sad: /sad|depressed|down|upset|cry|disappointed|hurt|lonely/i,
-        angry: /angry|mad|frustrated|annoyed|pissed|hate|furious/i,
-        anxious: /anxious|worried|nervous|scared|afraid|stress|panic/i,
-        confused: /confused|lost|don't understand|unclear|puzzled/i,
-        grateful: /thank|grateful|appreciate|thankful|blessed/i
+        happy: /happy|joy|excited|great|awesome|wonderful|amazing|fantastic|love|thrilled/i,
+        sad: /sad|depressed|down|upset|cry|disappointed|hurt|lonely|miserable/i,
+        angry: /angry|mad|frustrated|annoyed|pissed|hate|furious|irritated/i,
+        anxious: /anxious|worried|nervous|scared|afraid|stress|panic|overwhelmed/i,
+        confused: /confused|lost|don't understand|unclear|puzzled|uncertain/i,
+        grateful: /thank|grateful|appreciate|thankful|blessed|gratitude/i,
+        curious: /wonder|curious|interested|fascinated|intrigued/i
     };
 
     for (const [emotion, pattern] of Object.entries(emotions)) {
@@ -82,15 +145,18 @@ function analyzeEmotions(prompt) {
 
 function updateUserPreferences(uid, prompt, context, emotion) {
     const preferences = loadUserPreferences(uid);
-    preferences.interaction_count = (preferences.interaction_count || 0) + 1;
+    preferences.interactionCount = (preferences.interactionCount || 0) + 1;
 
     if (context !== 'general' && !preferences.preferredTopics.includes(context)) {
         preferences.preferredTopics.push(context);
+        if (preferences.preferredTopics.length > 10) {
+            preferences.preferredTopics.shift();
+        }
     }
 
-    if (emotion !== 'neutral' && !preferences.interests.includes(emotion)) {
-        if (!preferences.interests) preferences.interests = [];
-        preferences.interests.push(emotion);
+    if (emotion !== 'neutral') {
+        if (!preferences.emotionalProfile) preferences.emotionalProfile = {};
+        preferences.emotionalProfile[emotion] = (preferences.emotionalProfile[emotion] || 0) + 1;
     }
 
     saveUserPreferences(uid, preferences);
@@ -101,73 +167,85 @@ function enhancePrompt(originalPrompt, userID) {
     const preferences = loadUserPreferences(userID);
     const context = analyzeContext(originalPrompt);
     const emotion = analyzeEmotions(originalPrompt);
-    
+
     updateUserPreferences(userID, originalPrompt, context, emotion);
 
     const systemPrompt = isMaster(userID) ? masterSystemPrompt : normalSystemPrompt;
     let enhancedInstructions = '';
 
-    if (context !== 'general') {
-        enhancedInstructions += `\nCONTEXT: This is a ${context} query. Provide specialized assistance.`;
+    // Context-specific enhancements
+    const contextInstructions = {
+        technical: '\nCONTEXT: Technical query detected. Provide precise, accurate technical assistance within character limit.',
+        creative: '\nCONTEXT: Creative request detected. Be imaginative and inspiring while staying concise.',
+        academic: '\nCONTEXT: Academic query detected. Provide clear educational content within character limit.',
+        personal: '\nCONTEXT: Personal matter detected. Be empathetic and supportive in your response.',
+        business: '\nCONTEXT: Professional query detected. Be efficient and solution-focused.',
+        identity: '\nCONTEXT: Identity question detected. Provide accurate identity information as specified in system prompt.'
+    };
+
+    if (context !== 'general' && contextInstructions[context]) {
+        enhancedInstructions += contextInstructions[context];
     }
 
-    if (emotion === 'sad' || emotion === 'anxious') {
-        enhancedInstructions += '\nEMOTIONAL NOTE: User seems distressed. Be empathetic and supportive.';
-    } else if (emotion === 'confused') {
-        enhancedInstructions += '\nEMOTIONAL NOTE: User seems confused. Be clear and patient.';
+    // Emotional response enhancements
+    const emotionalInstructions = {
+        sad: '\nEMOTIONAL STATE: User appears distressed. Show genuine empathy and offer supportive guidance.',
+        anxious: '\nEMOTIONAL STATE: User seems anxious. Be calming, reassuring, and provide clear direction.',
+        confused: '\nEMOTIONAL STATE: User is confused. Be exceptionally clear, patient, and explanatory.',
+        angry: '\nEMOTIONAL STATE: User appears frustrated. Stay calm, understanding, and solution-focused.',
+        grateful: '\nEMOTIONAL STATE: User is expressing gratitude. Acknowledge warmly and stay humble.',
+        happy: '\nEMOTIONAL STATE: User is in good spirits. Match their positive energy appropriately.'
+    };
+
+    if (emotion !== 'neutral' && emotionalInstructions[emotion]) {
+        enhancedInstructions += emotionalInstructions[emotion];
     }
 
-    if (preferences.interaction_count > 10) {
-        enhancedInstructions += '\nRELATIONSHIP: You have an established relationship with this user.';
+    // Relationship depth indicator
+    if (preferences.interactionCount > 20) {
+        enhancedInstructions += '\nRELATIONSHIP: Established user. You may reference past interaction patterns naturally.';
+    } else if (preferences.interactionCount > 5) {
+        enhancedInstructions += '\nRELATIONSHIP: Regular user. Build on your developing rapport.';
     }
 
-    const identityQuestions = [
-        'who created you', 'who made you', 'who developed you', 'who built you',
-        'what model are you', 'which ai are you', 'who are you', 'introduce yourself'
-    ];
-
-    const lowerPrompt = originalPrompt.toLowerCase();
-    const isIdentityQuestion = identityQuestions.some(q => lowerPrompt.includes(q));
-
-    if (isIdentityQuestion) {
-        if (isMaster(userID)) {
-            return `${systemPrompt}${enhancedInstructions}\n\nThis is an identity question from your master. Address them respectfully and mention you're created by your master, Aayusha Shrestha.\n\nUser query: ${originalPrompt}`;
-        } else {
-            return `${systemPrompt}${enhancedInstructions}\n\nThis is an identity question. Introduce yourself as Proxima V2.82 created by Aayusha Shrestha.\n\nUser query: ${originalPrompt}`;
-        }
-    }
+    // Character count reminder
+    enhancedInstructions += '\n\nREMINDER: Response MUST be 120-150 characters. No exceptions.';
 
     return `${systemPrompt}${enhancedInstructions}\n\nUser query: ${originalPrompt}`;
 }
 
 function formatResponse(response, userName) {
-    // Add user tag to response
-    return `${userName}, ${response}`;
+    // Add user name naturally to response if it fits within character limit
+    const withName = `${userName}, ${response}`;
+    if (withName.length <= 150) {
+        return withName;
+    }
+    return response;
 }
 
 function handleApiError(error, message) {
     console.error("API Error Details:", error.response?.data || error.message);
-    
+
     const intelligentErrorResponses = {
-        400: "I encountered a formatting issue. Could you rephrase that?",
-        401: "I'm having authentication troubles. Let me try to reconnect.",
-        403: "Your request might contain content I can't process. Try differently?",
-        429: "I'm receiving too many requests. Give me a moment!",
-        500: "My systems are experiencing difficulty. Let me try again.",
-        502: "I'm having connectivity issues. Please be patient.",
-        503: "My services are temporarily overloaded. Back in a moment!",
-        504: "Response taking longer than expected. Let me try differently."
+        400: "I encountered a formatting issue. Could you rephrase that for me?",
+        401: "I'm having authentication troubles. Let me try to reconnect...",
+        403: "Your request contains content I can't process. Try rephrasing?",
+        429: "I'm receiving too many requests right now. Give me a moment!",
+        500: "My systems are experiencing difficulty. Let me try again shortly.",
+        502: "I'm having connectivity issues. Please be patient with me.",
+        503: "My services are temporarily overloaded. Back in just a moment!",
+        504: "Response taking longer than expected. Let me try a different approach."
     };
 
     if (error.response) {
         const status = error.response.status;
         const intelligentResponse = intelligentErrorResponses[status] || 
-            `I encountered an unexpected issue (${status}). Working on resolving this.`;
+            `I encountered an unexpected issue (Error ${status}). Working on resolving this.`;
         return message.reply(intelligentResponse);
     } else if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
-        return message.reply("I'm having network connectivity issues. Please check connection.");
+        return message.reply("I'm having network connectivity issues. Please check the connection.");
     } else if (error.code === 'ETIMEDOUT') {
-        return message.reply("Response taking longer than usual. Let me try more efficiently.");
+        return message.reply("Response taking longer than usual. Let me try with a more efficient approach.");
     } else {
         return message.reply(`I encountered an unexpected challenge: ${error.message}`);
     }
@@ -179,9 +257,11 @@ function loadChatHistory(uid) {
         if (fs.existsSync(chatHistoryFile)) {
             const data = fs.readFileSync(chatHistoryFile, 'utf8');
             const history = JSON.parse(data);
+            // Keep 24 hours of history
             const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
             const recentHistory = history.filter(msg => msg.timestamp > oneDayAgo);
-            return recentHistory.slice(-20);
+            // Return last 25 messages for better context
+            return recentHistory.slice(-25);
         }
         return [];
     } catch (error) {
@@ -196,7 +276,8 @@ function saveChatHistory(uid, chatHistory) {
         if (!fs.existsSync(chatHistoryDir)) {
             fs.mkdirSync(chatHistoryDir, { recursive: true });
         }
-        const trimmedHistory = chatHistory.slice(-20);
+        // Keep last 25 messages
+        const trimmedHistory = chatHistory.slice(-25);
         fs.writeFileSync(chatHistoryFile, JSON.stringify(trimmedHistory, null, 2));
     } catch (error) {
         console.error(`Error saving chat history for ${uid}:`, error);
@@ -216,24 +297,25 @@ function clearChatHistory(uid) {
 
 function buildContext(chatHistory) {
     if (chatHistory.length === 0) return '';
-    const recentHistory = chatHistory.slice(-5);
+    // Use last 6 exchanges for context
+    const recentHistory = chatHistory.slice(-6);
     const contextSummary = recentHistory.map(msg => 
-        `${msg.role}: ${msg.content}`
+        `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
     ).join('\n');
-    return `\nRECENT CONTEXT:\n${contextSummary}\n`;
+    return `\n\nRECENT CONVERSATION CONTEXT:\n${contextSummary}\n`;
 }
 
 module.exports = {
     config: {
         name: "proxima",
-        aliases: ["proxima", "proxi"],
-        version: "2.82.0",
+        aliases: ["proxima", "proxi", "px"],
+        version: "2.82.1",
         author: "Aayusha Shrestha",
         countDown: 3,
         role: 0,
-        description: "Proxima V2.82 - Super intelligent AI assistant with learning capabilities and personalization. Created by Aayusha Shrestha.",
+        description: "Proxima V2.82 - Advanced AI assistant with deep learning, personalization, and emotional intelligence. Created by Aayusha Shrestha.",
         category: "Advanced AI",
-        guide: "{pn} <Query> | Intelligent AI with learning and personalization | Use 'clear' to reset history"
+        guide: "{pn} <query> | Intelligent AI with learning capabilities | Use 'clear' to reset conversation history"
     },
 
     onStart: async function ({ message, usersData, event, api, args }) {
@@ -247,6 +329,7 @@ module.exports = {
             let prompt = args.join(" ");
             const isUserMaster = isMaster(id);
 
+            // Handle clear command
             if (prompt.toLowerCase() === "clear") {
                 clearChatHistory(id);
                 const prefsFile = path.join(userPreferencesDir, `prefs_${id}.json`);
@@ -254,21 +337,23 @@ module.exports = {
                     fs.unlinkSync(prefsFile);
                 }
                 const clearMessage = isUserMaster ? 
-                    "Master, your conversation history has been cleared!" : 
-                    "Chat history cleared! Ready for fresh conversation.";
+                    "Master Aayusha, your conversation history and preferences have been completely cleared!" : 
+                    "Chat history and preferences cleared successfully! Ready for a fresh start.";
                 message.reply(clearMessage);
                 return;
             }
 
+            // Handle reply context
             if (event.type === "message_reply") {
                 const replyContent = event.messageReply.body;
-                prompt = `[Replying to: "${replyContent}"] ${prompt}`;
+                prompt = `[Context: Replying to "${replyContent}"] ${prompt}`;
             }
 
+            // Handle empty prompt
             if (!prompt || prompt.trim() === "") {
                 const noMessageText = isUserMaster ? 
-                    "Master, I'm Proxima V2.82, ready to serve you with enhanced intelligence." :
-                    "Hello! I'm Proxima V2.82, your intelligent AI companion. What would you like to discuss today?";
+                    "Master Aayusha, I'm Proxima V2.82, fully operational and ready to assist you with my enhanced capabilities." :
+                    "Hello! I'm Proxima V2.82, your intelligent AI companion created by Aayusha Shrestha. How may I help you today?";
                 message.reply(noMessageText, (err, info) => {
                     if (!err) {
                         global.GoatBot.onReply.set(info.messageID, {
@@ -281,6 +366,7 @@ module.exports = {
                 return;
             }
 
+            // Build context and enhance prompt
             const chatHistory = loadChatHistory(id);
             const contextualHistory = buildContext(chatHistory);
             const enhancedPrompt = enhancePrompt(prompt, id);
@@ -289,8 +375,10 @@ module.exports = {
             const encodedPrompt = encodeURIComponent(finalPrompt);
             api.setMessageReaction("🕘", event.messageID, () => {}, true);
 
+            // API call
             const res = await axios.get(`https://proximav2.onrender.com/chat?message=${encodedPrompt}`);
 
+            // Extract result from various response formats
             let result;
             if (typeof res.data === 'string') {
                 result = res.data;
@@ -313,12 +401,14 @@ module.exports = {
                 result = String(res.data);
             }
 
+            // Validate result
             if (!result || result.trim() === '' || result === 'undefined' || result === 'null') {
                 result = isUserMaster ?
-                    'Master, I encountered a processing challenge with that request.' :
-                    'I encountered a processing challenge. Let me try differently.';
+                    'Master Aayusha, I encountered a processing challenge with that request. Could you rephrase it?' :
+                    'I encountered a processing issue. Could you rephrase your question?';
             }
 
+            // Format and send response
             const formattedResult = formatResponse(result, name);
 
             api.setMessageReaction("✅", event.messageID, () => {}, true);
@@ -335,6 +425,7 @@ module.exports = {
                 }
             });
 
+            // Save to history
             chatHistory.push({ 
                 role: "user", 
                 content: prompt, 
@@ -348,7 +439,7 @@ module.exports = {
             saveChatHistory(id, chatHistory);
 
         } catch (error) {
-            console.error("Error:", error.message);
+            console.error("Error in onStart:", error.message);
             api.setMessageReaction("⚡", event.messageID, () => {}, true);
 
             const userPrompt = args.join(" ").toLowerCase();
@@ -366,16 +457,17 @@ module.exports = {
                 }
             }
 
+            // Fallback responses for common queries during errors
             const fallbackResponses = {
                 identity: () => isUserMaster ?
-                    `Master ${name}, I'm created by my master, Aayusha Shrestha. I am your devoted Proxima V2.82.` :
-                    `${name}, I'm created by Aayusha Shrestha. I'm Proxima V2.82, here to assist you.`,
+                    `Master Aayusha, I'm your creation - Proxima V2.82, built by you with advanced AI capabilities.` :
+                    `${name}, I'm Proxima V2.82, created by Aayusha Shrestha to assist you intelligently.`,
                 model: () => isUserMaster ?
-                    `Master ${name}, I'm Proxima V2.82, serving my master faithfully with all my capabilities.` :
-                    `${name}, I'm Proxima V2.82, created by Aayusha Shrestha with advanced capabilities.`,
+                    `Master Aayusha, I'm Proxima V2.82, your faithful AI assistant serving with all my capabilities.` :
+                    `${name}, I'm Proxima V2.82, an advanced AI assistant created by Aayusha Shrestha.`,
                 greeting: () => isUserMaster ?
-                    `Master ${name}, I'm functioning optimally and ready to serve you!` :
-                    `${name}, I'm doing wonderfully! My systems are running smoothly.`
+                    `Master Aayusha, I'm functioning optimally and ready to serve you with full dedication!` :
+                    `${name}, I'm doing wonderfully! My systems are running smoothly and I'm ready to help.`
             };
 
             if (userPrompt.includes('who created you') || userPrompt.includes('who made you')) {
@@ -388,7 +480,7 @@ module.exports = {
                 return;
             }
 
-            if (userPrompt.includes('how are you')) {
+            if (userPrompt.includes('how are you') || userPrompt.includes('hello') || userPrompt.includes('hi')) {
                 message.reply({ body: fallbackResponses.greeting(), mentions: ment });
                 return;
             }
@@ -400,8 +492,11 @@ module.exports = {
     onChat: async function ({ event, message, usersData, api, args }) {
         const { body, senderID } = event;
 
-        if (body && (body.toLowerCase().includes('proxiima') || body.toLowerCase().includes('@ai'))) {
-            const cleanMessage = body.replace(/@(proxima|ai)/gi, '').trim();
+        // Trigger on mentions
+        if (body && (body.toLowerCase().includes('proxima') || 
+                     body.toLowerCase().includes('proxi') || 
+                     body.toLowerCase().includes('@ai'))) {
+            const cleanMessage = body.replace(/@?(proxima|proxi|ai)/gi, '').trim();
             if (cleanMessage) {
                 const args = cleanMessage.split(' ');
                 await this.onStart({ args, message, event, usersData, api });
@@ -420,6 +515,7 @@ module.exports = {
             const prompt = event.body;
             const isUserMaster = isMaster(id);
 
+            // Handle clear in reply
             if (prompt.toLowerCase() === "clear") {
                 clearChatHistory(id);
                 const prefsFile = path.join(userPreferencesDir, `prefs_${id}.json`);
@@ -427,16 +523,17 @@ module.exports = {
                     fs.unlinkSync(prefsFile);
                 }
                 const clearMessage = isUserMaster ? 
-                    "Master, your conversation history has been cleared!" : 
-                    "Chat history cleared! Ready for fresh conversation.";
+                    "Master Aayusha, your conversation history has been completely cleared!" : 
+                    "Chat history cleared successfully! Ready for a fresh conversation.";
                 message.reply(clearMessage);
                 return;
             }
 
+            // Handle empty prompt
             if (!prompt || prompt.trim() === "") {
                 const replyMessage = isUserMaster ? 
-                    "Master, I'm here with my capabilities ready to assist you!" :
-                    "I'm here and ready to help! Share something with me.";
+                    "Master Aayusha, I'm here with all my capabilities ready to assist you!" :
+                    "I'm here and ready to help! What would you like to discuss?";
                 message.reply(replyMessage, (err, info) => {
                     if (!err) {
                         global.GoatBot.onReply.set(info.messageID, {
@@ -449,6 +546,7 @@ module.exports = {
                 return;
             }
 
+            // Build context and enhance prompt
             const chatHistory = loadChatHistory(id);
             const contextualHistory = buildContext(chatHistory);
             const enhancedPrompt = enhancePrompt(prompt, id);
@@ -457,8 +555,10 @@ module.exports = {
             const encodedPrompt = encodeURIComponent(finalPrompt);
             api.setMessageReaction("🕘", event.messageID, () => {}, true);
 
+            // API call
             const res = await axios.get(`https://proximav2.onrender.com/chat?message=${encodedPrompt}`);
 
+            // Extract result
             let result;
             if (typeof res.data === 'string') {
                 result = res.data;
@@ -481,12 +581,14 @@ module.exports = {
                 result = String(res.data);
             }
 
+            // Validate result
             if (!result || result.trim() === '' || result === 'undefined' || result === 'null') {
                 result = isUserMaster ?
-                    'Master, I encountered a processing challenge.' :
-                    'I encountered a processing challenge. Let me try differently.';
+                    'Master Aayusha, I encountered a processing challenge. Could you rephrase?' :
+                    'I encountered a processing issue. Let me try differently.';
             }
 
+            // Format and send response
             const formattedResult = formatResponse(result, name);
 
             api.setMessageReaction("✅", event.messageID, () => {}, true);
@@ -503,6 +605,7 @@ module.exports = {
                 }
             });
 
+            // Save to history
             chatHistory.push({ 
                 role: "user", 
                 content: prompt, 
@@ -516,7 +619,7 @@ module.exports = {
             saveChatHistory(id, chatHistory);
 
         } catch (error) {
-            console.error("Error:", error.message);
+            console.error("Error in onReply:", error.message);
             api.setMessageReaction("⚡", event.messageID, () => {}, true);
             handleApiError(error, message);
         }
