@@ -3,17 +3,6 @@ const path = require("path");
 const ytSearch = require("yt-search");
 const axios = require("axios");
 
-const baseApiUrl = async () => {
-    const base = await axios.get(`https://raw.githubusercontent.com/Mostakim0978/D1PT0/refs/heads/main/baseApiUrl.json`);
-    return base.data.api;
-};
-
-(async () => {
-    global.apis = {
-        diptoApi: await baseApiUrl()
-    };
-})();
-
 async function getStreamFromURL(url, pathName) {
     try {
         const response = await axios.get(url, { responseType: "stream" });
@@ -130,55 +119,69 @@ module.exports = {
       return api.sendMessage("❌ Invalid number. Reply 1-5.", threadID, messageID);
 
     const selected = Reply.results[choice - 1];
-    const videoId = selected.videoId;
+    const videoUrl = selected.url;
 
     await api.sendMessage(`⏬ Downloading: ${selected.title}`, threadID);
 
     try {
-      let retries = 0;
-      while (!global.apis?.diptoApi && retries < 10) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        retries++;
-      }
-
-      if (!global.apis?.diptoApi) {
-        throw new Error("API not initialized. Please try again.");
-      }
-
-      const format = "mp4";
+      // Determine API endpoint based on type
+      let apiUrl;
+      let fileExtension;
+      let downloadUrl;
+      let quality;
       
-      console.log(`Fetching from API: ${global.apis.diptoApi}/ytDl3?link=${videoId}&format=${format}`);
-      
-      const { data: { title, quality, downloadLink } } = await axios.get(
-        `${global.apis.diptoApi}/ytDl3?link=${videoId}&format=${format}`,
-        { timeout: 120000 }
-      );
+      if (Reply.type === "music") {
+        apiUrl = `http://api.hutchingd.x10.mx/api/dl%2Fytmp3.php?url=${encodeURIComponent(videoUrl)}`;
+        fileExtension = "mp3";
+        
+        console.log(`Fetching from API: ${apiUrl}`);
+        const { data } = await axios.get(apiUrl, { timeout: 120000 });
 
-      if (!downloadLink) {
-        throw new Error("Download URL not found in API response.");
+        if (!data.download) {
+          throw new Error("Download URL not found in API response.");
+        }
+        
+        downloadUrl = data.download;
+        console.log(`Download URL obtained: ${downloadUrl}`);
+        
+      } else {
+        apiUrl = `http://api.hutchingd.x10.mx/api/dl%2Fyt.php?yt_url=${encodeURIComponent(videoUrl)}`;
+        fileExtension = "mp4";
+        
+        console.log(`Fetching from API: ${apiUrl}`);
+        const { data } = await axios.get(apiUrl, { timeout: 120000 });
+
+        if (!data.success || !data.formats || data.formats.length === 0) {
+          throw new Error("Video formats not found in API response.");
+        }
+        
+        // Find 360p quality video (id: 1 or quality: "360p")
+        const format360p = data.formats.find(f => f.quality === "360p" && f.type === "Video + Audio (Direct)");
+        
+        if (!format360p) {
+          throw new Error("360p quality not available for this video.");
+        }
+        
+        downloadUrl = format360p.url;
+        quality = format360p.quality;
+        console.log(`Download URL obtained: ${downloadUrl}`);
       }
-
-      console.log(`Download URL obtained: ${downloadLink}`);
 
       await api.sendMessage({
-        body: `✅ Downloaded: ${title || selected.title}\n📺 Quality: ${quality}\n⏱️ ${selected.timestamp}\n👁️ ${selected.views.toLocaleString()}`,
-        attachment: await global.utils.getStreamFromURL(downloadLink, `${title || selected.title}.mp4`)
+        body: `✅ Downloaded: ${selected.title}${quality ? `\n📺 Quality: ${quality}` : ''}\n⏱️ ${selected.timestamp}\n👁️ ${selected.views.toLocaleString()}`,
+        attachment: await global.utils.getStreamFromURL(downloadUrl, `${selected.title}.${fileExtension}`)
       }, threadID, messageID);
 
     } catch (err) {
       console.error("Download error:", err.message);
-      
+
       let errorMsg = "❌ Failed to download: ";
       if (err.message.includes("timeout")) {
         errorMsg += "Request timeout. The video might be too long or server is busy.";
-      } else if (err.message.includes("API not initialized")) {
-        errorMsg += "API not ready. Please try again in a moment.";
-      } else if (Reply.type === "music") {
-        errorMsg += "Audio downloads are not supported with the new API. Only video downloads are available.";
       } else {
         errorMsg += err.message;
       }
-      
+
       api.sendMessage(errorMsg, threadID);
     }
   },
