@@ -1,7 +1,7 @@
 {
   "facebookAccount": {
-    "email": "pythonreport.py@gmail.com",
-    "password": "AayushaShrestha44.",
+    "email": "",
+    "password": "",
     "2FASecret": "",
     "i_user": "",
     "proxy": null,
@@ -19,14 +19,18 @@
   "adminBot": [
     "100089741361051",
     "61552696929392",
-    "61571635233121"
+    "100000829183891",
+    "61552072737061",
+    "61574765378290",
+    "61574631227345",
+    "61574765378290"
   ],
   "whiteListMode": {
     "enable": false,
-    "whiteListIds": [61552696929392],
+    "whiteListIds": [61552696929392,100089741361051,61552072737061,61574631227345,61574765378290],
     "notes": "if you enable this feature, only the ids in the whiteListIds section can use the bot"
   },
-  "nickNameBot": "Proxima🐭",
+  "nickNameBot": "[#] • Proxima Bot",
   "prefix": "#",
   "database": {
     "type": "sqlite",
@@ -35,18 +39,18 @@
     "autoRefreshThreadInfoFirstTime": true,
     "notes": "(1) type selects 'json' or 'sqlite' or 'mongodb'. If you choose mongodb, enter uri connect mongodb in the uriMongodb section, instructions to get uri connect mongodb at: https://youtu.be/z1f9urHW5xY. I recommend using 'mongodb' or 'sqlite', json is not recommended because it is not stable. (2) when you set autoSyncWhenStart to true, the bot will automatically synchronize the data in the database when starting the bot, this will make the bot start slower. (3) when you set autoRefreshThreadInfoFirstTime to true, the bot will automatically refresh the thread information when get first message from the thread since starting the bot"
   },
-  "timeZone": "Asia/Dhaka",
+    "timeZone": "Asia/Ho_Chi_Minh",
   "credentials": {
     "gmailAccount": {
-      "email": "romeobot555@gmail.com",
-      "clientId": "695328982889-v1t85ej9aq1fvv0n4alp7rcbea9gkgvf.apps.googleusercontent.com",
-      "clientSecret": "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",
-      "refreshToken": "1//04EyH1gbNUVv5CgYIARAAGAQSNwF-L9IrqcPCQD2QsuhCQ2XprHCTMrTnVPI6WvT9i73nnoi4XqfAD0_yDoGW_gtWUdIeVtANzao",
+      "email": "cliffbotbeluga@gmail.com",
+      "clientId": "335951889803-q0sqvpqjire12vl0c1drqpvq6trqe7qi.apps.googleusercontent.com",
+      "clientSecret": "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",
+      "refreshToken": "1//04vKSsirtbMjRCgYIARAAGAQSNwF-L9Ir45Y2gJy6rg7wvfCbzF5fTFQxOhV83N6jQC-N5n6S-rNnEUgujiuWu4OvrLEbmELMcSI",
       "apiKey": ""
     },
-    "gRecaptcha": {
-      "siteKey": "6Lff7Y0mAAAAALiv3IBkCCOfCdEsN-lK-jtR5FCm",
-      "secretKey": "6Lff7Y0mAAAAAGQr8dO3lqDJVhTi8Q-tpLLy2kGo"
+      "gRecaptcha": {
+      "siteKey": "6LcEPTMpAAAAAKRhQmTp03g4rkq-U6jXs8E8rDf5",
+      "secretKey": "6LcEPTMpAAAAAKRhQmTp03g4rkq-U6jXs8E8rDf5"
     }
   },
   "dashBoard": {
