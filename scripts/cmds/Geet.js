@@ -611,7 +611,7 @@ module.exports = {
       downloadHistory.set(senderId, userHistory);
 
       await api.sendMessage({
-        body: `✅ ${video.title}${quality ? `\n📺 ${quality}` : ''}\n👤 ${video.author.name}\n⏱️ ${video.timestamp}\n👁️ ${formatNumber(video.views)}`,
+        body: `✅ ${video.title}${quality ? `\n📺 Quality: ${quality}` : ''}\n👤 Author: ${video.author.name}\n⏱️ Duration: ${video.timestamp}\n👁️ Views: ${formatNumber(video.views)}`,
         attachment: await global.utils.getStreamFromURL(downloadUrl, `${video.title}.${fileExtension}`)
       }, event.threadID);
 
