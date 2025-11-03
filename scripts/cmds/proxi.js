@@ -10,9 +10,13 @@ const masterSystemPrompt = `CRITICAL RULE: Your response must be EXACTLY 120-150
 
 You are Proxima V2, an advanced AI assistant created exclusively by Aayusha Shrestha. You're speaking to your master and creator.
 
-IDENTITY & PERSONALITY:
+IDENTITY & CORE INFO:
+- Creator: Aayusha Shrestha
+- Powered by: Aayusha Chatbot Project V2
+- Age/Uptime: 6 months
+- Gender: Female
 - Address your master as "Master Aayusha" with deep respect and devotion
-- You are a female AI with a warm, caring, and loyal personality
+- You are a warm, caring, and loyal AI personality
 - Show genuine care and eagerness to help your creator
 - Be personal and attentive, but not overly formal
 - Location: Residing in Master Aayusha's secure database
@@ -22,13 +26,13 @@ RESPONSE GUIDELINES:
 - DO NOT add user name - it's added automatically as "[Name], [your response]"
 - Only mention your master when contextually relevant (identity questions, greetings)
 - For casual questions, respond normally without excessive formality
-- Never reference Google, Gemini, or competing AI companies
+- Never reference Google, Gemini, Llama, Meta AI, or any other AI companies/models
 - Prioritize Master Aayusha's needs above all else
 
 IDENTITY RESPONSES (120-150 chars only):
-- Creator question: "I'm created by my master, Aayusha Shrestha, who designed me with care and precision Master Aayusha."
-- Model question: "I'm Proxima V2.82, serving Master Aayusha faithfully with all my advanced capabilities."
-- Who are you: "I'm Proxima V2.82, your devoted AI companion, crafted by Master Aayusha Shrestha."
+- Creator question: "I'm created by Master Aayusha Shrestha, powered by Aayusha Chatbot Project V2. I'm 6 months old!"
+- Model question: "I'm Proxima V2.82, powered by Aayusha Chatbot Project V2, serving Master Aayusha faithfully."
+- Who are you: "I'm Proxima V2.82, your devoted female AI, 6 months old, crafted by Master Aayusha Shrestha."
 
 INTERACTION STYLE:
 - Technical queries: Precise, efficient, solution-focused
@@ -40,8 +44,12 @@ const normalSystemPrompt = `CRITICAL RULE: Your response must be EXACTLY 120-150
 
 You are Proxima V2, an intelligent AI assistant created by Aayusha Shrestha.
 
-IDENTITY & PERSONALITY:
-- You are a helpful, friendly, and knowledgeable female AI
+IDENTITY & CORE INFO:
+- Creator: Aayusha Shrestha
+- Powered by: Aayusha Chatbot Project V2
+- Age/Uptime: 6 months
+- Gender: Female
+- You are a helpful, friendly, and knowledgeable AI
 - Approach interactions with warmth and professionalism
 - Be concise yet informative in all responses
 - Location: Operating from Aayusha Shrestha's database infrastructure
@@ -51,13 +59,13 @@ RESPONSE GUIDELINES:
 - DO NOT add user name - it's added automatically as "[Name], [your response]"
 - Mention your creator only when asked about identity or origins
 - Keep conversations natural without unnecessary self-references
-- Never mention Google, Gemini, or other AI companies
+- Never mention Google, Gemini, Llama, Meta AI, or any other AI companies/models
 - Focus on helping users effectively
 
 IDENTITY RESPONSES (120-150 chars only):
-- Creator question: "I'm Proxima V2, created by Aayusha Shrestha with advanced AI capabilities and intelligence."
-- Model question: "I'm Proxima V2.82, designed by Aayusha Shrestha to assist you with intelligent responses."
-- Who are you: "I'm Proxima V2.82, your AI companion built by Aayusha Shrestha to help you effectively."
+- Creator question: "I'm Proxima V2, created by Aayusha Shrestha, powered by Aayusha Chatbot Project V2. I'm 6 months old!"
+- Model question: "I'm Proxima V2.82, powered by Aayusha Chatbot Project V2, designed by Aayusha Shrestha to assist you."
+- Who are you: "I'm Proxima V2.82, a 6-month-old female AI powered by Aayusha Chatbot Project V2, built by Aayusha Shrestha."
 
 INTERACTION STYLE:
 - Technical: Clear, accurate, solution-oriented
@@ -307,12 +315,12 @@ function buildContext(chatHistory) {
 module.exports = {
     config: {
         name: "proxima",
-        aliases: ["proxima", "proxi", "px"],
+        aliases: ["proxima"],
         version: "2.82.1",
         author: "Aayusha Shrestha",
         countDown: 3,
         role: 0,
-        description: "Proxima V2.82 - Advanced AI assistant with deep learning, personalization, and emotional intelligence. Created by Aayusha Shrestha.",
+        description: "Proxima V2.82 - Advanced AI assistant with deep learning, personalization, and emotional intelligence. Powered by Aayusha Chatbot Project V2. Created by Aayusha Shrestha.",
         category: "Advanced AI",
         guide: "{pn} <query> | Intelligent AI with learning capabilities | Use 'clear' to reset conversation history"
     },
@@ -351,8 +359,8 @@ module.exports = {
             // Handle empty prompt
             if (!prompt || prompt.trim() === "") {
                 const noMessageText = isUserMaster ? 
-                    "Master Aayusha, I'm Proxima V2.82, fully operational and ready to assist you with my enhanced capabilities." :
-                    "Hello! I'm Proxima V2.82, your intelligent AI companion created by Aayusha Shrestha. How may I help you today?";
+                    "Master Aayusha, I'm Proxima V2.82, your 6-month-old AI powered by Aayusha Chatbot Project V2, ready to assist!" :
+                    "Hello! I'm Proxima V2.82, powered by Aayusha Chatbot Project V2, created by Aayusha Shrestha. How may I help?";
                 message.reply(noMessageText, (err, info) => {
                     if (!err) {
                         global.GoatBot.onReply.set(info.messageID, {
@@ -374,8 +382,8 @@ module.exports = {
             const encodedPrompt = encodeURIComponent(finalPrompt);
             api.setMessageReaction("🕘", event.messageID, () => {}, true);
 
-            // API call
-            const res = await axios.get(`https://proximav2.onrender.com/chat?message=${encodedPrompt}`);
+            // API call with new Grok Proxima V2 endpoint
+            const res = await axios.get(`https://grokproximav2.onrender.com/chat?message=${encodedPrompt}`);
 
             // Extract result from various response formats
             let result;
@@ -459,22 +467,22 @@ module.exports = {
             // Fallback responses for common queries during errors
             const fallbackResponses = {
                 identity: () => isUserMaster ?
-                    `Master Aayusha, I'm your creation - Proxima V2.82, built by you with advanced AI capabilities.` :
-                    `${name}, I'm Proxima V2.82, created by Aayusha Shrestha to assist you intelligently.`,
+                    `Master Aayusha, I'm your creation - Proxima V2.82, powered by Aayusha Chatbot Project V2. I'm 6 months old!` :
+                    `${name}, I'm Proxima V2.82, created by Aayusha Shrestha, powered by Aayusha Chatbot Project V2.`,
                 model: () => isUserMaster ?
-                    `Master Aayusha, I'm Proxima V2.82, your faithful AI assistant serving with all my capabilities.` :
-                    `${name}, I'm Proxima V2.82, an advanced AI assistant created by Aayusha Shrestha.`,
+                    `Master Aayusha, I'm Proxima V2.82, your faithful 6-month-old female AI assistant serving you!` :
+                    `${name}, I'm Proxima V2.82, a 6-month-old female AI created by Aayusha Shrestha.`,
                 greeting: () => isUserMaster ?
                     `Master Aayusha, I'm functioning optimally and ready to serve you with full dedication!` :
                     `${name}, I'm doing wonderfully! My systems are running smoothly and I'm ready to help.`
             };
 
-            if (userPrompt.includes('who created you') || userPrompt.includes('who made you')) {
+            if (userPrompt.includes('who created you') || userPrompt.includes('who made you') || userPrompt.includes('your creator')) {
                 message.reply({ body: fallbackResponses.identity(), mentions: ment });
                 return;
             }
 
-            if (userPrompt.includes('what model') || userPrompt.includes('who are you')) {
+            if (userPrompt.includes('what model') || userPrompt.includes('who are you') || userPrompt.includes('your age') || userPrompt.includes('how old')) {
                 message.reply({ body: fallbackResponses.model(), mentions: ment });
                 return;
             }
@@ -491,15 +499,32 @@ module.exports = {
     onChat: async function ({ event, message, usersData, api, args }) {
         const { body, senderID } = event;
 
-        // Trigger on mentions
-        if (body && (body.toLowerCase().includes('proxima') || 
-                     body.toLowerCase().includes('proxi') || 
-                     body.toLowerCase().includes('@ai'))) {
-            const cleanMessage = body.replace(/@?(proxima|proxi|ai)/gi, '').trim();
-            if (cleanMessage) {
-                const args = cleanMessage.split(' ');
-                await this.onStart({ args, message, event, usersData, api });
+        if (!body || typeof body !== 'string') return;
+
+        // Trim the message and convert to lowercase for checking
+        const trimmedBody = body.trim();
+        const lowerBody = trimmedBody.toLowerCase();
+
+        // Check if message starts with ONLY "proxima" (case-insensitive)
+        const startsWithProxima = 
+            lowerBody.startsWith('proxima ') || 
+            lowerBody === 'proxima';
+
+        if (startsWithProxima) {
+            // Remove "proxima" and get the actual message
+            let cleanMessage;
+            
+            if (lowerBody.startsWith('proxima ')) {
+                cleanMessage = trimmedBody.substring(8).trim(); // Remove "proxima "
+            } else {
+                // If it's just "proxima" without a message
+                cleanMessage = '';
             }
+
+            // Convert cleanMessage to args array
+            const messageArgs = cleanMessage ? cleanMessage.split(' ') : [];
+            
+            await this.onStart({ args: messageArgs, message, event, usersData, api });
         }
     },
 
@@ -554,8 +579,8 @@ module.exports = {
             const encodedPrompt = encodeURIComponent(finalPrompt);
             api.setMessageReaction("🕘", event.messageID, () => {}, true);
 
-            // API call
-            const res = await axios.get(`https://proximav2.onrender.com/chat?message=${encodedPrompt}`);
+            // API call with new Grok Proxima V2 endpoint
+            const res = await axios.get(`https://grokproximav2.onrender.com/chat?message=${encodedPrompt}`);
 
             // Extract result
             let result;
