@@ -20,19 +20,31 @@
 const { spawn } = require("child_process");
 const log = require("./logger/log.js");
 
-function startProject() {
-	const child = spawn("node", ["Goat.js"], {
-		cwd: __dirname,
-		stdio: "inherit",
-		shell: true
-	});
+// ✅ ADD THIS PART
+const express = require("express");
+const app = express();
 
-	child.on("close", (code) => {
-		if (code == 2) {
-			log.info("Restarting Project...");
-			startProject();
-		}
-	});
+app.get("/", (req, res) => res.send("GoatBot is running on Render ✅"));
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Web server running on port ${port}`);
+});
+// ✅ END OF ADDED PART
+
+function startProject() {
+    const child = spawn("node", ["Goat.js"], {
+        cwd: __dirname,
+        stdio: "inherit",
+        shell: true
+    });
+
+    child.on("close", (code) => {
+        if (code == 2) {
+            log.info("Restarting Project...");
+            startProject();
+        }
+    });
 }
 
 startProject();
