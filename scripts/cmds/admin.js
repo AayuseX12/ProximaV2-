@@ -15,11 +15,11 @@ module.exports = {
 		category: "box chat",
 		guide: {
 			vi: '   {pn} [add | -a] <uid | @tag>: Thêm quyền admin cho người dùng'
-				+ '\n	  {pn} [remove | -r] <uid | @tag>: Xóa quyền admin của người dùng'
-				+ '\n	  {pn} [list | -l]: Liệt kê danh sách admin',
+				+ '\n          {pn} [remove | -r] <uid | @tag>: Xóa quyền admin của người dùng'
+				+ '\n          {pn} [list | -l]: Liệt kê danh sách admin',
 			en: '   {pn} [add | -a] <uid | @tag>: Add admin role for user'
-				+ '\n	  {pn} [remove | -r] <uid | @tag>: Remove admin role of user'
-				+ '\n	  {pn} [list | -l]: List all admins'
+				+ '\n          {pn} [remove | -r] <uid | @tag>: Remove admin role of user'
+				+ '\n          {pn} [list | -l]: List all admins'
 		}
 	},
 
@@ -66,10 +66,10 @@ module.exports = {
 					}
 
 					config.adminBot.push(...notAdminIds);
-					const getNames = await Promise.all(uids.map(uid => usersData.getName(uid).then(name => ({ uid, name }))));
+					const getNames = await Promise.all(uids.map(uid => usersData.getName(uid).then(name => ({ uid, name })).catch(() => ({ uid, name: "Facebook User" }))));
 					writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
 					return message.reply(
-						(notAdminIds.length > 0 ? getLang("added", notAdminIds.length, getNames.map(({ uid, name }) => `• ${name} (${uid})`).join("\n")) : "")
+						(notAdminIds.length > 0 ? getLang("added", notAdminIds.length, getNames.map(({ uid, name }) => `• ${name || "Facebook User"} (${uid})`).join("\n")) : "")
 						+ (adminIds.length > 0 ? getLang("alreadyAdmin", adminIds.length, adminIds.map(uid => `• ${uid}`).join("\n")) : "")
 					);
 				}
@@ -94,10 +94,10 @@ module.exports = {
 					}
 					for (const uid of adminIds)
 						config.adminBot.splice(config.adminBot.indexOf(uid), 1);
-					const getNames = await Promise.all(adminIds.map(uid => usersData.getName(uid).then(name => ({ uid, name }))));
+					const getNames = await Promise.all(adminIds.map(uid => usersData.getName(uid).then(name => ({ uid, name })).catch(() => ({ uid, name: "Facebook User" }))));
 					writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
 					return message.reply(
-						(adminIds.length > 0 ? getLang("removed", adminIds.length, getNames.map(({ uid, name }) => `• ${name} (${uid})`).join("\n")) : "")
+						(adminIds.length > 0 ? getLang("removed", adminIds.length, getNames.map(({ uid, name }) => `• ${name || "Facebook User"} (${uid})`).join("\n")) : "")
 						+ (notAdminIds.length > 0 ? getLang("notAdmin", notAdminIds.length, notAdminIds.map(uid => `• ${uid}`).join("\n")) : "")
 					);
 				}
@@ -106,7 +106,17 @@ module.exports = {
 			}
 			case "list":
 			case "-l": {
-				const getNames = await Promise.all(config.adminBot.map(uid => usersData.getName(uid).then(name => ({ uid, name }))));
+				// FIXED: Added error handling for getName failures
+				const getNames = await Promise.all(
+					config.adminBot.map(uid => 
+						usersData.getName(uid)
+							.then(name => ({ uid, name: name || "Facebook User" }))
+							.catch(err => {
+								console.log(`Failed to get name for UID ${uid}:`, err);
+								return { uid, name: "Facebook User" };
+							})
+					)
+				);
 				return message.reply(getLang("listAdmin", getNames.map(({ uid, name }) => `• ${name} (${uid})`).join("\n")));
 			}
 			default:
