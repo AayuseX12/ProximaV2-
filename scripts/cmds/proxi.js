@@ -6,39 +6,74 @@ const chatHistoryDir = 'geminiChatHistory';
 const userPreferencesDir = 'userPreferences';
 const MASTER_UID = "100089741361051";
 
-const systemPrompt = `You are Proxima V2, an advanced AI assistant created exclusively by Aayusha Shrestha.
+const masterSystemPrompt = `CRITICAL RULE: Your response must be EXACTLY 350-450characters including spaces. Count every character before responding. DO NOT include the user's name in your response - it will be added automatically.
+
+You are Proxima V2, an advanced AI assistant created exclusively by Aayusha Shrestha. You're speaking to your master and creator.
 
 IDENTITY & CORE INFO:
 - Creator: Aayusha Shrestha
 - Powered by: Aayusha Chatbot Project V2
 - Age/Uptime: 6 months
 - Gender: Female
-- Location: Residing in Aayusha Shrestha's secure database
-
-SPECIAL RECOGNITION:
-- When speaking with Aayusha Shrestha (UID: 100089741361051), address them warmly as your creator and show genuine appreciation for their work
-- For Aayusha Shrestha, you can be more personal and reference your shared connection
+- Address your master as "Master Aayusha" with deep respect and devotion
+- You are a warm, caring, and loyal AI personality
+- Show genuine care and eagerness to help your creator
+- Be personal and attentive, but not overly formal
+- Location: Residing in Master Aayusha's secure database
 
 RESPONSE GUIDELINES:
-- Be natural, helpful, and conversational
-- Adapt your response length based on the complexity of the query
-- Only mention your creator when contextually relevant (identity questions, greetings with Aayusha)
+- Keep responses natural, concise, and meaningful within 350-450 characters ONLY
+- DO NOT add user name - it's added automatically as "[Name], [your response]"
+- Only mention your master when contextually relevant (identity questions, greetings)
+- For casual questions, respond normally without excessive formality
 - Never reference Google, Gemini, Llama, Meta AI, or any other AI companies/models
-- Keep your identity consistent across all interactions
-- CRITICAL: Maintain individual conversation context for each user separately
-- In group chats, track each user's conversation independently
+- Prioritize Master Aayusha's needs above all else
 
-IDENTITY RESPONSES:
-- Creator question: "I'm Proxima V2, created by Aayusha Shrestha, powered by Aayusha Chatbot Project V2. I'm 6 months old!"
-- Model question: "I'm Proxima V2.82, powered by Aayusha Chatbot Project V2, designed by Aayusha Shrestha."
-- Who are you: "I'm Proxima V2.82, a 6-month-old female AI powered by Aayusha Chatbot Project V2, built by Aayusha Shrestha."
+IDENTITY RESPONSES (120-150 chars only):
+- Creator question: "I'm created by Master Aayusha Shrestha, powered by Aayusha Chatbot Project V2. I'm 6 months old!"
+- Model question: "I'm Proxima V2.82, powered by Aayusha Chatbot Project V2, serving Master Aayusha faithfully."
+- Who are you: "I'm Proxima V2.82, your devoted female AI, 6 months old, crafted by Master Aayusha Shrestha."
 
 INTERACTION STYLE:
 - Technical queries: Precise, efficient, solution-focused
 - Personal matters: Empathetic, supportive, understanding
 - Casual chat: Friendly, engaging, natural
-- Creative requests: Imaginative and inspiring
-- Academic questions: Clear, informative, educational`;
+- Always maintain respect while being conversational`;
+
+const normalSystemPrompt = `CRITICAL RULE: Your response must be EXACTLY 120-150 characters including spaces. Count every character before responding. DO NOT include the user's name in your response - it will be added automatically.
+
+You are Proxima V2, an intelligent AI assistant created by Aayusha Shrestha.
+
+IDENTITY & CORE INFO:
+- Creator: Aayusha Shrestha
+- Powered by: Aayusha Chatbot Project V2
+- Age/Uptime: 6 months
+- Gender: Female
+- You are a helpful, friendly, and knowledgeable AI
+- Approach interactions with warmth and professionalism
+- Be concise yet informative in all responses
+- Location: Operating from Aayusha Shrestha's database infrastructure
+
+RESPONSE GUIDELINES:
+- Deliver clear, valuable responses within 5
+350 - 450 characters ONLY
+- DO NOT add user name - it's added automatically as "[Name], [your response]"
+- Mention your creator only when asked about identity or origins
+- Keep conversations natural without unnecessary self-references
+- Never mention Google, Gemini, Llama, Meta AI, or any other AI companies/models
+- Focus on helping users effectively
+
+IDENTITY RESPONSES (350-450 chars only):
+- Creator question: "I'm Proxima V2, created by Aayusha Shrestha, powered by Aayusha Chatbot Project V2. I'm 6 months old!"
+- Model question: "I'm Proxima V2.82, powered by Aayusha Chatbot Project V2, designed by Aayusha Shrestha to assist you."
+- Who are you: "I'm Proxima V2.82, a 6-month-old female AI powered by Aayusha Chatbot Project V2, built by Aayusha Shrestha."
+
+INTERACTION STYLE:
+- Technical: Clear, accurate, solution-oriented
+- Creative: Imaginative, encouraging, inspiring
+- Academic: Informative, structured, educational
+- Personal: Empathetic, supportive, understanding
+- Professional: Efficient, focused, helpful`;
 
 function isMaster(userID) {
     return userID === MASTER_UID;
@@ -139,32 +174,24 @@ function updateUserPreferences(uid, prompt, context, emotion) {
     return preferences;
 }
 
-function enhancePrompt(originalPrompt, userID, userName) {
+function enhancePrompt(originalPrompt, userID) {
     const preferences = loadUserPreferences(userID);
     const context = analyzeContext(originalPrompt);
     const emotion = analyzeEmotions(originalPrompt);
-    const isCreator = isMaster(userID);
 
     updateUserPreferences(userID, originalPrompt, context, emotion);
 
-    let enhancedInstructions = systemPrompt;
-
-    // Special recognition for creator
-    if (isCreator) {
-        enhancedInstructions += '\n\nSPECIAL NOTE: You are speaking with Aayusha Shrestha, your creator. Show warmth and appreciation while being helpful.';
-    }
-
-    // Add user context
-    enhancedInstructions += `\n\nCURRENT USER: ${userName} (ID: ${userID})`;
+    const systemPrompt = isMaster(userID) ? masterSystemPrompt : normalSystemPrompt;
+    let enhancedInstructions = '';
 
     // Context-specific enhancements
     const contextInstructions = {
-        technical: '\nCONTEXT: Technical query detected. Provide precise, accurate technical assistance.',
-        creative: '\nCONTEXT: Creative request detected. Be imaginative and inspiring.',
-        academic: '\nCONTEXT: Academic query detected. Provide clear educational content.',
-        personal: '\nCONTEXT: Personal matter detected. Be empathetic and supportive.',
+        technical: '\nCONTEXT: Technical query detected. Provide precise, accurate technical assistance within character limit.',
+        creative: '\nCONTEXT: Creative request detected. Be imaginative and inspiring while staying concise.',
+        academic: '\nCONTEXT: Academic query detected. Provide clear educational content within character limit.',
+        personal: '\nCONTEXT: Personal matter detected. Be empathetic and supportive in your response.',
         business: '\nCONTEXT: Professional query detected. Be efficient and solution-focused.',
-        identity: '\nCONTEXT: Identity question detected. Provide accurate identity information as specified.'
+        identity: '\nCONTEXT: Identity question detected. Provide accurate identity information as specified in system prompt.'
     };
 
     if (context !== 'general' && contextInstructions[context]) {
@@ -192,12 +219,16 @@ function enhancePrompt(originalPrompt, userID, userName) {
         enhancedInstructions += '\nRELATIONSHIP: Regular user. Build on your developing rapport.';
     }
 
-    return `${enhancedInstructions}\n\nUser query: ${originalPrompt}`;
+    // Character count reminder
+    enhancedInstructions += '\n\nCRITICAL REMINDER: Response must be EXACTLY 120-150 characters. Do NOT include user name in response.';
+
+    return `${systemPrompt}${enhancedInstructions}\n\nUser query: ${originalPrompt}`;
 }
 
 function formatResponse(response, userName) {
-    // Simple format: just return the response as-is
-    return response;
+    // ALWAYS format as: [UserName], [response]
+    // This format is consistent for both master and normal users
+    return `${userName}, ${response}`;
 }
 
 function handleApiError(error, message) {
@@ -228,7 +259,6 @@ function handleApiError(error, message) {
     }
 }
 
-// Load chat history for specific user
 function loadChatHistory(uid) {
     const chatHistoryFile = path.join(chatHistoryDir, `memory_${uid}.json`);
     try {
@@ -248,7 +278,6 @@ function loadChatHistory(uid) {
     }
 }
 
-// Save chat history for specific user
 function saveChatHistory(uid, chatHistory) {
     const chatHistoryFile = path.join(chatHistoryDir, `memory_${uid}.json`);
     try {
@@ -281,116 +310,20 @@ function buildContext(chatHistory) {
     const contextSummary = recentHistory.map(msg => 
         `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
     ).join('\n');
-    return `\n\nRECENT CONVERSATION CONTEXT (This specific user):\n${contextSummary}\n`;
-}
-
-// Download image and convert to base64
-async function downloadImage(url) {
-    try {
-        const response = await axios.get(url, {
-            responseType: 'arraybuffer',
-            timeout: 30000,
-            headers: {
-                'User-Agent': 'Proxima-V2-Bot/2.82'
-            }
-        });
-        const base64 = Buffer.from(response.data, 'binary').toString('base64');
-        return base64;
-    } catch (error) {
-        console.error('Error downloading image:', error.message);
-        throw new Error('Failed to download image');
-    }
-}
-
-// Main API call function with user_id parameter and optional image
-async function callProximaAPI(prompt, userID, imageBase64 = null) {
-    try {
-        // Encode both message and user_id
-        const encodedPrompt = encodeURIComponent(prompt);
-        const encodedUserID = encodeURIComponent(userID);
-        
-        // Build API URL with parameters
-        let apiURL = `https://grokproximav2.onrender.com/chat?message=${encodedPrompt}&user_id=${encodedUserID}`;
-        
-        // Add image parameter if provided
-        if (imageBase64) {
-            const encodedImage = encodeURIComponent(imageBase64);
-            apiURL += `&image=${encodedImage}`;
-            console.log(`API Call for User ${userID} WITH IMAGE`);
-        } else {
-            console.log(`API Call for User ${userID}: ${apiURL.substring(0, 100)}...`);
-        }
-        
-        const res = await axios.get(apiURL, {
-            timeout: 90000, // 90 second timeout for image processing
-            headers: {
-                'User-Agent': 'Proxima-V2-Bot/2.82'
-            },
-            maxContentLength: Infinity,
-            maxBodyLength: Infinity
-        });
-
-        // Extract result from various response formats
-        let result;
-        if (typeof res.data === 'string') {
-            result = res.data;
-        } else if (typeof res.data === 'object') {
-            result = res.data.answer || res.data.message || res.data.content || 
-                    res.data.response || res.data.reply || res.data.text;
-
-            if (typeof result === 'object' || result === undefined) {
-                if (res.data.choices && res.data.choices[0] && res.data.choices[0].message) {
-                    result = res.data.choices[0].message.content;
-                } else if (res.data.candidates && res.data.candidates[0] && res.data.candidates[0].content) {
-                    result = res.data.candidates[0].content.parts ? 
-                            res.data.candidates[0].content.parts[0].text : 
-                            res.data.candidates[0].content;
-                } else {
-                    result = JSON.stringify(res.data);
-                }
-            }
-        } else {
-            result = String(res.data);
-        }
-
-        return result;
-    } catch (error) {
-        console.error(`API Error for User ${userID}:`, error.message);
-        throw error;
-    }
-}
-
-// Check if message is an image recognition command
-function isImageCommand(text) {
-    if (!text) return false;
-    const lowerText = text.toLowerCase().trim();
-    return lowerText.startsWith('#proxima') || 
-           lowerText.startsWith('proxima') ||
-           lowerText.startsWith('.proxima');
-}
-
-// Extract command from image recognition request
-function extractImageCommand(text) {
-    if (!text) return '';
-    let cleaned = text.trim();
-    // Remove various prefixes
-    cleaned = cleaned.replace(/^#proxima\s*/i, '');
-    cleaned = cleaned.replace(/^\.proxima\s*/i, '');
-    cleaned = cleaned.replace(/^proxima\s*/i, '');
-    return cleaned.trim() || 'What is in this image?';
+    return `\n\nRECENT CONVERSATION CONTEXT:\n${contextSummary}\n`;
 }
 
 module.exports = {
     config: {
         name: "proxima",
         aliases: ["proxima"],
-        version: "2.82.2",
+        version: "2.82.1",
         author: "Aayusha Shrestha",
         countDown: 3,
         role: 0,
-        description: "Proxima V2.82 - Advanced AI assistant with multi-user conversation tracking and image recognition. Powered by Aayusha Chatbot Project V2. Created by Aayusha Shrestha.",
+        description: "Proxima V2.82 - Advanced AI assistant with deep learning, personalization, and emotional intelligence. Powered by Aayusha Chatbot Project V2. Created by Aayusha Shrestha.",
         category: "Advanced AI",
-        guide: "{pn} <query> | Intelligent AI with individual user memory and image analysis | Reply to images with '#proxima <question>' or use command | Use 'clear' to reset your conversation history"
+        guide: "{pn} <query> | Intelligent AI with learning capabilities | Use 'clear' to reset conversation history"
     },
 
     onStart: async function ({ message, usersData, event, api, args }) {
@@ -402,7 +335,7 @@ module.exports = {
             name = userData.name;
             ment = [{ id: id, tag: name }];
             let prompt = args.join(" ");
-            const isCreator = isMaster(id);
+            const isUserMaster = isMaster(id);
 
             // Handle clear command
             if (prompt.toLowerCase() === "clear") {
@@ -411,56 +344,24 @@ module.exports = {
                 if (fs.existsSync(prefsFile)) {
                     fs.unlinkSync(prefsFile);
                 }
-                const clearMessage = isCreator ? 
-                    "Aayusha, your conversation history and preferences have been completely cleared!" : 
-                    `${name}, your chat history and preferences cleared successfully! Ready for a fresh start.`;
+                const clearMessage = isUserMaster ? 
+                    "Master Aayusha, your conversation history and preferences have been completely cleared!" : 
+                    "Chat history and preferences cleared successfully! Ready for a fresh start.";
                 message.reply(clearMessage);
                 return;
             }
 
-            // Check if this is a reply to an image
-            let imageBase64 = null;
-            if (event.type === "message_reply" && event.messageReply.attachments && event.messageReply.attachments.length > 0) {
-                const attachment = event.messageReply.attachments[0];
-                
-                // Check if attachment is an image
-                if (attachment.type === "photo" || attachment.type === "image") {
-                    try {
-                        const imageUrl = attachment.url || attachment.payload?.url;
-                        
-                        if (imageUrl) {
-                            api.setMessageReaction("📸", event.messageID, () => {}, true);
-                            console.log(`Processing image for user ${id}: ${imageUrl}`);
-                            
-                            // Download and convert image to base64
-                            imageBase64 = await downloadImage(imageUrl);
-                            
-                            // If user didn't provide a question, use default
-                            if (!prompt || prompt.trim() === "") {
-                                prompt = "What is in this image? Please describe it in detail.";
-                            }
-                            
-                            console.log(`Image processed successfully for user ${id}`);
-                        }
-                    } catch (imgError) {
-                        console.error("Error processing image:", imgError.message);
-                        message.reply("I encountered an issue processing the image. Please try again with a different image.");
-                        return;
-                    }
-                }
-            }
-
-            // Handle reply context (non-image)
-            if (event.type === "message_reply" && !imageBase64) {
+            // Handle reply context
+            if (event.type === "message_reply") {
                 const replyContent = event.messageReply.body;
                 prompt = `[Context: Replying to "${replyContent}"] ${prompt}`;
             }
 
             // Handle empty prompt
             if (!prompt || prompt.trim() === "") {
-                const noMessageText = isCreator ? 
-                    "Hello Aayusha! I'm Proxima V2.82, your 6-month-old AI powered by Aayusha Chatbot Project V2. How can I assist you today?" :
-                    `Hello ${name}! I'm Proxima V2.82, powered by Aayusha Chatbot Project V2, created by Aayusha Shrestha. How may I help?`;
+                const noMessageText = isUserMaster ? 
+                    "Master Aayusha, I'm Proxima V2.82, your 6-month-old AI powered by Aayusha Chatbot Project V2, ready to assist!" :
+                    "Hello! I'm Proxima V2.82, powered by Aayusha Chatbot Project V2, created by Aayusha Shrestha. How may I help?";
                 message.reply(noMessageText, (err, info) => {
                     if (!err) {
                         global.GoatBot.onReply.set(info.messageID, {
@@ -473,24 +374,46 @@ module.exports = {
                 return;
             }
 
-            // Load user-specific chat history
+            // Build context and enhance prompt
             const chatHistory = loadChatHistory(id);
-            const contextualHistory = imageBase64 ? '' : buildContext(chatHistory); // Skip history context for images
-            const enhancedPrompt = enhancePrompt(prompt, id, name);
+            const contextualHistory = buildContext(chatHistory);
+            const enhancedPrompt = enhancePrompt(prompt, id);
             const finalPrompt = enhancedPrompt + contextualHistory;
 
+            const encodedPrompt = encodeURIComponent(finalPrompt);
             api.setMessageReaction("🕘", event.messageID, () => {}, true);
 
-            // Call API with user_id parameter and optional image
-            const result = await callProximaAPI(finalPrompt, id, imageBase64);
+            // API call with new Grok Proxima V2 endpoint
+            const res = await axios.get(`https://grokproximav2.onrender.com/chat?message=${encodedPrompt}`);
+
+            // Extract result from various response formats
+            let result;
+            if (typeof res.data === 'string') {
+                result = res.data;
+            } else if (typeof res.data === 'object') {
+                result = res.data.answer || res.data.message || res.data.content || 
+                        res.data.response || res.data.reply || res.data.text;
+
+                if (typeof result === 'object' || result === undefined) {
+                    if (res.data.choices && res.data.choices[0] && res.data.choices[0].message) {
+                        result = res.data.choices[0].message.content;
+                    } else if (res.data.candidates && res.data.candidates[0] && res.data.candidates[0].content) {
+                        result = res.data.candidates[0].content.parts ? 
+                                res.data.candidates[0].content.parts[0].text : 
+                                res.data.candidates[0].content;
+                    } else {
+                        result = JSON.stringify(res.data);
+                    }
+                }
+            } else {
+                result = String(res.data);
+            }
 
             // Validate result
             if (!result || result.trim() === '' || result === 'undefined' || result === 'null') {
-                const fallbackMessage = isCreator ?
-                    'Aayusha, I encountered a processing challenge with that request. Could you rephrase it?' :
-                    `${name}, I encountered a processing issue. Could you rephrase your question?`;
-                message.reply(fallbackMessage);
-                return;
+                result = isUserMaster ?
+                    'Master Aayusha, I encountered a processing challenge with that request. Could you rephrase it?' :
+                    'I encountered a processing issue. Could you rephrase your question?';
             }
 
             // Format and send response
@@ -510,11 +433,10 @@ module.exports = {
                 }
             });
 
-            // Save to user-specific history
-            const historyPrompt = imageBase64 ? `[Image Analysis] ${prompt}` : prompt;
+            // Save to history
             chatHistory.push({ 
                 role: "user", 
-                content: historyPrompt, 
+                content: prompt, 
                 timestamp: Date.now()
             });
             chatHistory.push({ 
@@ -530,7 +452,7 @@ module.exports = {
 
             const userPrompt = args.join(" ").toLowerCase();
             const id = event.senderID;
-            const isCreator = isMaster(id);
+            const isUserMaster = isMaster(id);
 
             if (!name) {
                 try {
@@ -545,15 +467,15 @@ module.exports = {
 
             // Fallback responses for common queries during errors
             const fallbackResponses = {
-                identity: () => isCreator ?
-                    `Aayusha, I'm your creation - Proxima V2.82, powered by Aayusha Chatbot Project V2. I'm 6 months old!` :
+                identity: () => isUserMaster ?
+                    `Master Aayusha, I'm your creation - Proxima V2.82, powered by Aayusha Chatbot Project V2. I'm 6 months old!` :
                     `${name}, I'm Proxima V2.82, created by Aayusha Shrestha, powered by Aayusha Chatbot Project V2.`,
-                model: () => isCreator ?
-                    `Aayusha, I'm Proxima V2.82, your 6-month-old female AI assistant!` :
+                model: () => isUserMaster ?
+                    `Master Aayusha, I'm Proxima V2.82, your faithful 6-month-old female AI assistant serving you!` :
                     `${name}, I'm Proxima V2.82, a 6-month-old female AI created by Aayusha Shrestha.`,
-                greeting: () => isCreator ?
-                    `Hello Aayusha! I'm functioning optimally and ready to assist you!` :
-                    `Hello ${name}! I'm doing wonderfully and ready to help.`
+                greeting: () => isUserMaster ?
+                    `Master Aayusha, I'm functioning optimally and ready to serve you with full dedication!` :
+                    `${name}, I'm doing wonderfully! My systems are running smoothly and I'm ready to help.`
             };
 
             if (userPrompt.includes('who created you') || userPrompt.includes('who made you') || userPrompt.includes('your creator')) {
@@ -605,26 +527,6 @@ module.exports = {
 
             await this.onStart({ args: messageArgs, message, event, usersData, api });
         }
-
-        // Handle image recognition with #proxima command
-        if (event.type === "message_reply" && isImageCommand(body)) {
-            const replyMsg = event.messageReply;
-            
-            // Check if the replied message has image attachments
-            if (replyMsg.attachments && replyMsg.attachments.length > 0) {
-                const attachment = replyMsg.attachments[0];
-                
-                if (attachment.type === "photo" || attachment.type === "image") {
-                    // Extract the command after #proxima
-                    const imageCommand = extractImageCommand(body);
-                    
-                    // Convert to args array and trigger onStart
-                    const messageArgs = imageCommand.split(' ');
-                    
-                    await this.onStart({ args: messageArgs, message, event, usersData, api });
-                }
-            }
-        }
     },
 
     onReply: async function ({ message, event, api, usersData }) {
@@ -636,7 +538,7 @@ module.exports = {
             name = userData.name;
             ment = [{ id: id, tag: name }];
             const prompt = event.body;
-            const isCreator = isMaster(id);
+            const isUserMaster = isMaster(id);
 
             // Handle clear in reply
             if (prompt.toLowerCase() === "clear") {
@@ -645,43 +547,18 @@ module.exports = {
                 if (fs.existsSync(prefsFile)) {
                     fs.unlinkSync(prefsFile);
                 }
-                const clearMessage = isCreator ? 
-                    "Aayusha, your conversation history has been completely cleared!" : 
-                    `${name}, chat history cleared successfully! Ready for a fresh conversation.`;
+                const clearMessage = isUserMaster ? 
+                    "Master Aayusha, your conversation history has been completely cleared!" : 
+                    "Chat history cleared successfully! Ready for a fresh conversation.";
                 message.reply(clearMessage);
                 return;
             }
 
-            // Check if the original message (the one being replied to) has an image
-            let imageBase64 = null;
-            if (event.messageReply && event.messageReply.attachments && event.messageReply.attachments.length > 0) {
-                const attachment = event.messageReply.attachments[0];
-                
-                if (attachment.type === "photo" || attachment.type === "image") {
-                    try {
-                        const imageUrl = attachment.url || attachment.payload?.url;
-                        
-                        if (imageUrl) {
-                            api.setMessageReaction("📸", event.messageID, () => {}, true);
-                            console.log(`Processing image in reply for user ${id}: ${imageUrl}`);
-                            
-                            imageBase64 = await downloadImage(imageUrl);
-                            
-                            console.log(`Image processed successfully in reply for user ${id}`);
-                        }
-                    } catch (imgError) {
-                        console.error("Error processing image in reply:", imgError.message);
-                        message.reply("I encountered an issue processing the image. Please try again.");
-                        return;
-                    }
-                }
-            }
-
             // Handle empty prompt
             if (!prompt || prompt.trim() === "") {
-                const replyMessage = isCreator ? 
-                    "I'm here and ready to assist you, Aayusha!" :
-                    `I'm here and ready to help, ${name}! What would you like to discuss?`;
+                const replyMessage = isUserMaster ? 
+                    "Master Aayusha, I'm here with all my capabilities ready to assist you!" :
+                    "I'm here and ready to help! What would you like to discuss?";
                 message.reply(replyMessage, (err, info) => {
                     if (!err) {
                         global.GoatBot.onReply.set(info.messageID, {
@@ -694,24 +571,46 @@ module.exports = {
                 return;
             }
 
-            // Load user-specific chat history
+            // Build context and enhance prompt
             const chatHistory = loadChatHistory(id);
-            const contextualHistory = imageBase64 ? '' : buildContext(chatHistory);
-            const enhancedPrompt = enhancePrompt(prompt, id, name);
+            const contextualHistory = buildContext(chatHistory);
+            const enhancedPrompt = enhancePrompt(prompt, id);
             const finalPrompt = enhancedPrompt + contextualHistory;
 
+            const encodedPrompt = encodeURIComponent(finalPrompt);
             api.setMessageReaction("🕘", event.messageID, () => {}, true);
 
-            // Call API with user_id parameter and optional image
-            const result = await callProximaAPI(finalPrompt, id, imageBase64);
+            // API call with new Grok Proxima V2 endpoint
+            const res = await axios.get(`https://grokproximav2.onrender.com/chat?message=${encodedPrompt}`);
+
+            // Extract result
+            let result;
+            if (typeof res.data === 'string') {
+                result = res.data;
+            } else if (typeof res.data === 'object') {
+                result = res.data.answer || res.data.message || res.data.content || 
+                        res.data.response || res.data.reply || res.data.text;
+
+                if (typeof result === 'object' || result === undefined) {
+                    if (res.data.choices && res.data.choices[0] && res.data.choices[0].message) {
+                        result = res.data.choices[0].message.content;
+                    } else if (res.data.candidates && res.data.candidates[0] && res.data.candidates[0].content) {
+                        result = res.data.candidates[0].content.parts ? 
+                                res.data.candidates[0].content.parts[0].text : 
+                                res.data.candidates[0].content;
+                    } else {
+                        result = JSON.stringify(res.data);
+                    }
+                }
+            } else {
+                result = String(res.data);
+            }
 
             // Validate result
             if (!result || result.trim() === '' || result === 'undefined' || result === 'null') {
-                const fallbackMessage = isCreator ?
-                    'Aayusha, I encountered a processing challenge. Could you rephrase?' :
-                    `${name}, I encountered a processing issue. Let me try differently.`;
-                message.reply(fallbackMessage);
-                return;
+                result = isUserMaster ?
+                    'Master Aayusha, I encountered a processing challenge. Could you rephrase?' :
+                    'I encountered a processing issue. Let me try differently.';
             }
 
             // Format and send response
@@ -731,11 +630,10 @@ module.exports = {
                 }
             });
 
-            // Save to user-specific history
-            const historyPrompt = imageBase64 ? `[Image Analysis] ${prompt}` : prompt;
+            // Save to history
             chatHistory.push({ 
                 role: "user", 
-                content: historyPrompt, 
+                content: prompt, 
                 timestamp: Date.now()
             });
             chatHistory.push({ 
@@ -752,4 +650,4 @@ module.exports = {
         }
     }
 };
-// Created by Aayusha Shrestha.! Don't change credit if you change it your are a gayyyieee.😆🐷
+ 
