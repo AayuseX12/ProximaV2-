@@ -1,4 +1,4 @@
-
+Content is user-generated and unverified.
 const fs = require("fs");
 const path = require("path");
 const ytSearch = require("yt-search");
@@ -61,7 +61,7 @@ function sendRegionalBlockedMessage(api, threadID, videoTitle, duration) {
 module.exports = {
   config: {
     name: "youtube",
-    version: "3.0.0",
+    version: "3.0.1",
     author: "Aayusha (Ultimate Edition)",
     countDown: 5,
     role: 0,
@@ -569,7 +569,7 @@ module.exports = {
       let downloadUrl;
       let quality;
 
-if (type === "music") {
+      if (type === "music") {
         apiUrl = `http://api.hutchingd.x10.mx/api/dl%2Fytmp3.php?url=${encodeURIComponent(videoUrl)}`;
         fileExtension = "mp3";
 
@@ -583,27 +583,12 @@ if (type === "music") {
         fileExtension = "mp4";
 
         const { data } = await axios.get(apiUrl, { timeout: 120000 });
-        if (!data.success || !data.formats || data.formats.length === 0) {
-          throw new Error("Video formats not found.");
+        if (!data.download) {
+          throw new Error("Video download URL not found.");
         }
 
-        const formatPriority = [
-          { quality: "360p", type: "Video + Audio (Direct)" },
-          { quality: "480p", type: "Video + Audio (Direct)" },
-          { quality: "240p", type: "Video + Audio (Direct)" }
-        ];
-
-        let selectedFormat = null;
-        for (const priority of formatPriority) {
-          selectedFormat = data.formats.find(f => f.quality === priority.quality && f.type === priority.type);
-          if (selectedFormat) break;
-        }
-
-        if (!selectedFormat) selectedFormat = data.formats[0];
-        if (!selectedFormat) throw new Error("No format available.");
-
-        downloadUrl = selectedFormat.url;
-        quality = selectedFormat.quality;
+        downloadUrl = data.download;
+        quality = "Default"; // API no longer provides quality info
       }
 
       // Save to history
@@ -623,7 +608,7 @@ if (type === "music") {
 
     } catch (err) {
       console.error("Download error:", err);
-      
+
       // Send regional blocked message for any download error
       sendRegionalBlockedMessage(api, event.threadID, video.title, video.timestamp);
     }
